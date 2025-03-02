@@ -17,7 +17,11 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { arrayMove } from "@dnd-kit/sortable";
+import {
+  arrayMove,
+  SortableContext,
+  horizontalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import TaskCard from "./task-card";
 
 const KanbanBoard = () => {
@@ -86,12 +90,26 @@ const KanbanBoard = () => {
   ]);
 
   const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const [activeColumn, setActiveColumn] = useState<Column | null>(null);
 
   const handleOnDragStart = (event: DragStartEvent) => {
     const { active } = event;
 
-    // Find the task being dragged
-    const taskId = active.id as string;
+    const activeId = active.id as string;
+
+    // Check if we're dragging a column
+    if (activeId.includes("column-")) {
+      const columnId = activeId.replace("column-", "");
+      const column = columns.find((col) => col.id === columnId);
+
+      if (column) {
+        setActiveColumn(column);
+        return;
+      }
+    }
+
+    // Otherwise, we're dragging a task
+    const taskId = activeId;
 
     // Find which column contains this task
     for (const column of columns) {
@@ -111,83 +129,86 @@ const KanbanBoard = () => {
     // Return if the active and over elements are the same
     if (active.id === over.id) return;
 
-    // Find the source column (where the active task is from)
-    const activeColumn = columns.find((column) =>
-      column.tasks.some((task) => task.id === active.id)
-    );
-
-    if (!activeColumn) return;
-
-    // Check if this is a task being dragged over a column
-    const isTaskOverColumn = over.id.toString().includes("column-");
-
-    if (isTaskOverColumn) {
-      // Get the column ID from the over ID
-      const overId = over.id.toString().replace("column-", "");
-
-      // If the task is already in this column, do nothing
-      if (activeColumn.id === overId) return;
-
-      // Create updated columns by removing task from source and adding to destination
-      const updatedColumns = columns.map((col) => {
-        // Remove task from all columns
-        const filteredTasks = col.tasks.filter((t) => t.id !== activeTask.id);
-
-        // If this is the destination column, add the task
-        if (col.id === overId) {
-          return {
-            ...col,
-            tasks: [...filteredTasks, activeTask],
-          };
-        }
-
-        return {
-          ...col,
-          tasks: filteredTasks,
-        };
-      });
-
-      setColumns(updatedColumns);
-    } else {
-      // This is a task being dragged over another task
-      const overTaskId = over.id as string;
-
-      // Find which column contains the task being dragged over
-      const overColumn = columns.find((column) =>
-        column.tasks.some((task) => task.id === overTaskId)
+    // Handle task dragging
+    if (activeTask && !active.id.toString().includes("column-")) {
+      // Find the source column (where the active task is from)
+      const activeColumn = columns.find((column) =>
+        column.tasks.some((task) => task.id === active.id)
       );
 
-      if (!overColumn) return;
+      if (!activeColumn) return;
 
-      // If tasks are in different columns, move the active task to the over column
-      if (activeColumn.id !== overColumn.id) {
+      // Check if this is a task being dragged over a column
+      const isTaskOverColumn = over.id.toString().includes("column-");
+
+      if (isTaskOverColumn) {
+        // Get the column ID from the over ID
+        const overId = over.id.toString().replace("column-", "");
+
+        // If the task is already in this column, do nothing
+        if (activeColumn.id === overId) return;
+
+        // Create updated columns by removing task from source and adding to destination
         const updatedColumns = columns.map((col) => {
-          // Remove the active task from its current column
-          if (col.id === activeColumn.id) {
+          // Remove task from all columns
+          const filteredTasks = col.tasks.filter((t) => t.id !== activeTask.id);
+
+          // If this is the destination column, add the task
+          if (col.id === overId) {
             return {
               ...col,
-              tasks: col.tasks.filter((task) => task.id !== activeTask.id),
+              tasks: [...filteredTasks, activeTask],
             };
           }
 
-          // Add the active task to the target column at the specific position
-          if (col.id === overColumn.id) {
-            const overTaskIndex = col.tasks.findIndex(
-              (task) => task.id === overTaskId
-            );
-            const newTasks = [...col.tasks];
-            newTasks.splice(overTaskIndex, 0, activeTask);
-
-            return {
-              ...col,
-              tasks: newTasks,
-            };
-          }
-
-          return col;
+          return {
+            ...col,
+            tasks: filteredTasks,
+          };
         });
 
         setColumns(updatedColumns);
+      } else {
+        // This is a task being dragged over another task
+        const overTaskId = over.id as string;
+
+        // Find which column contains the task being dragged over
+        const overColumn = columns.find((column) =>
+          column.tasks.some((task) => task.id === overTaskId)
+        );
+
+        if (!overColumn) return;
+
+        // If tasks are in different columns, move the active task to the over column
+        if (activeColumn.id !== overColumn.id) {
+          const updatedColumns = columns.map((col) => {
+            // Remove the active task from its current column
+            if (col.id === activeColumn.id) {
+              return {
+                ...col,
+                tasks: col.tasks.filter((task) => task.id !== activeTask.id),
+              };
+            }
+
+            // Add the active task to the target column at the specific position
+            if (col.id === overColumn.id) {
+              const overTaskIndex = col.tasks.findIndex(
+                (task) => task.id === overTaskId
+              );
+              const newTasks = [...col.tasks];
+              newTasks.splice(overTaskIndex, 0, activeTask);
+
+              return {
+                ...col,
+                tasks: newTasks,
+              };
+            }
+
+            return col;
+          });
+
+          setColumns(updatedColumns);
+        }
       }
     }
   };
@@ -197,11 +218,32 @@ const KanbanBoard = () => {
 
     if (!over) {
       setActiveTask(null);
+      setActiveColumn(null);
       return;
     }
 
-    // If task was dragged over another task, reorder within same column
-    if (active.id !== over.id && !over.id.toString().includes("column-")) {
+    // Handle column reordering
+    if (
+      active.id.toString().includes("column-") &&
+      over.id.toString().includes("column-")
+    ) {
+      const activeColumnId = active.id.toString().replace("column-", "");
+      const overColumnId = over.id.toString().replace("column-", "");
+
+      const activeColumnIndex = columns.findIndex(
+        (col) => col.id === activeColumnId
+      );
+      const overColumnIndex = columns.findIndex(
+        (col) => col.id === overColumnId
+      );
+
+      // Reorder columns
+      if (activeColumnIndex !== -1 && overColumnIndex !== -1) {
+        setColumns(arrayMove(columns, activeColumnIndex, overColumnIndex));
+      }
+    }
+    // Handle task reordering within the same column
+    else if (active.id !== over.id && !over.id.toString().includes("column-")) {
       // Find which column contains both tasks
       for (let i = 0; i < columns.length; i++) {
         const column = columns[i];
@@ -225,6 +267,7 @@ const KanbanBoard = () => {
     }
 
     setActiveTask(null);
+    setActiveColumn(null);
   };
 
   return (
@@ -243,14 +286,47 @@ const KanbanBoard = () => {
         onDragEnd={handleOnDragEnd}
         sensors={sensors}
       >
-        <div className="flex">
-          {columns.map((column) => (
-            <KanbanColumn key={column.id} column={column} />
-          ))}
+        <div className="flex gap-4 overflow-x-auto pb-4">
+          <SortableContext
+            items={columns.map((col) => `column-${col.id}`)}
+            strategy={horizontalListSortingStrategy}
+          >
+            {columns.map((column) => (
+              <KanbanColumn key={column.id} column={column} />
+            ))}
+          </SortableContext>
         </div>
 
         <DragOverlay>
-          {activeTask ? <TaskCard task={activeTask} /> : null}
+          {activeTask ? (
+            <TaskCard task={activeTask} />
+          ) : activeColumn ? (
+            <div className="w-[400px] h-full bg-gray-100 space-y-4 p-4 rounded-lg opacity-80">
+              <div className="flex items-center justify-between">
+                <div className="text-lg font-medium">
+                  {activeColumn.title}{" "}
+                  <span className="ml-2 text-muted-foreground text-sm">
+                    ({activeColumn.tasks.length})
+                  </span>
+                </div>
+              </div>
+              <div className="space-y-3 min-h-[200px] p-2 rounded-md border border-dashed border-gray-300">
+                {activeColumn.tasks.length === 0 ? (
+                  <div className="flex h-24 items-center justify-center">
+                    <p className="text-sm text-muted-foreground">
+                      No tasks yet
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {activeColumn.tasks.map((task) => (
+                      <TaskCard key={task.id} task={task} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : null}
         </DragOverlay>
       </DndContext>
     </div>

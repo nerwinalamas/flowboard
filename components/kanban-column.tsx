@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import TaskCard from "./task-card";
@@ -6,8 +8,10 @@ import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
+  useSortable,
 } from "@dnd-kit/sortable";
 import { useTaskModal } from "@/hooks/useTaskModal";
+import { CSS } from "@dnd-kit/utilities";
 
 interface KanbanColumnProps {
   column: Column;
@@ -15,12 +19,40 @@ interface KanbanColumnProps {
 
 const KanbanColumn = ({ column }: KanbanColumnProps) => {
   const { onOpen } = useTaskModal();
-  const { setNodeRef } = useDroppable({
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: `column-${column.id}`,
+    data: {
+      type: "column",
+      column,
+    },
+  });
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const { setNodeRef: setTasksRef } = useDroppable({
     id: `column-${column.id}`,
   });
 
   return (
-    <div className="h-full bg-gray-100 w-[320px] md:w-[380px] xl:w-1/3 space-y-4 p-4 rounded-lg mx-2">
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="w-[400px] h-full bg-gray-100 space-y-4 p-4 rounded-lg shadow-sm backdrop-blur-sm"
+    >
       <div className="flex items-center justify-between">
         <div className="text-lg font-medium">
           {column.title}{" "}
@@ -28,13 +60,13 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
             ({column.tasks.length})
           </span>
         </div>
-        <Button variant="ghost" size="sm" onClick={() => onOpen("createTask")} className="hover:bg-primary/10 cursor-pointer">
+        <Button variant="ghost" size="sm" onClick={() => onOpen("createTask")}>
           <Plus className="h-4 w-4" />
         </Button>
       </div>
 
       <div
-        ref={setNodeRef}
+        ref={setTasksRef}
         className="space-y-3 min-h-[200px] p-2 rounded-md border border-dashed border-gray-300 transition-colors duration-200 hover:border-gray-400"
       >
         <SortableContext
