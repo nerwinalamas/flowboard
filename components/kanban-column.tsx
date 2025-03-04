@@ -60,7 +60,12 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
             ({column.tasks.length})
           </span>
         </div>
-        <Button variant="ghost" size="sm" onClick={() => onOpen("createTask")}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onOpen("createTask")}
+          className="hover:bg-gray-200 hover:cursor-pointer"
+        >
           <Plus className="h-4 w-4" />
         </Button>
       </div>
