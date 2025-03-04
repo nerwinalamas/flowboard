@@ -94,14 +94,12 @@ const KanbanBoard = () => {
 
   const handleOnDragStart = (event: DragStartEvent) => {
     const { active } = event;
-
-    const activeId = active.id as string;
+    const activeId = active.id.toString();
 
     // Check if we're dragging a column
     if (activeId.includes("column-")) {
       const columnId = activeId.replace("column-", "");
       const column = columns.find((col) => col.id === columnId);
-
       if (column) {
         setActiveColumn(column);
         return;
@@ -124,7 +122,7 @@ const KanbanBoard = () => {
   const handleOnDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
 
-    if (!over || !activeTask) return;
+    if (!over) return;
 
     // Return if the active and over elements are the same
     if (active.id === over.id) return;
@@ -230,6 +228,13 @@ const KanbanBoard = () => {
       const activeColumnId = active.id.toString().replace("column-", "");
       const overColumnId = over.id.toString().replace("column-", "");
 
+      // If they're the same column, do nothing
+      if (activeColumnId === overColumnId) {
+        setActiveTask(null);
+        setActiveColumn(null);
+        return;
+      }
+
       const activeColumnIndex = columns.findIndex(
         (col) => col.id === activeColumnId
       );
@@ -237,9 +242,14 @@ const KanbanBoard = () => {
         (col) => col.id === overColumnId
       );
 
-      // Reorder columns
+      // Reorder columns - this will work even with empty columns
       if (activeColumnIndex !== -1 && overColumnIndex !== -1) {
-        setColumns(arrayMove(columns, activeColumnIndex, overColumnIndex));
+        const newColumns = arrayMove(
+          columns,
+          activeColumnIndex,
+          overColumnIndex
+        );
+        setColumns(newColumns);
       }
     }
     // Handle task reordering within the same column
