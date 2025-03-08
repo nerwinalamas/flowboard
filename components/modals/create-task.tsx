@@ -14,29 +14,70 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useTaskModal } from "@/hooks/useTaskModal";
 import { useState } from "react";
+import { useKanbanStore } from "@/hooks/useKanbanStore";
+import { toast } from "sonner";
 
 type Priority = "low" | "medium" | "high";
 
 const CreateTask = () => {
-  const { isOpen, onClose, type } = useTaskModal();
+  const { isOpen, onClose, type, columnId } = useTaskModal();
   const isModalOpen = isOpen && type === "createTask";
+
+  const addTask = useKanbanStore((state) => state.addTask);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState<Priority>("medium");
+  const [priority, setPriority] = useState<Priority>("low");
 
   const handleDialogChange = () => {
     onClose();
+
+    setTitle("");
+    setDescription("");
+    setPriority("low");
   };
 
   const handlePriorityChange = (value: string) => {
     setPriority(value as Priority);
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!title.trim()) {
+      toast.error("Task title is required");
+      return;
+    }
+
+    if (!description.trim()) {
+      toast.error("Task description is required");
+      return;
+    }
+
+    try {
+      const taskData = {
+        title: title.trim(),
+        description: description.trim(),
+        priority,
+      };
+
+      addTask(columnId, taskData);
+
+      toast.success("Task added successfully");
+      handleDialogChange();
+    } catch (error) {
+      console.log("Error create task:", error);
+      toast.error("Failed to create task");
+    }
+  };
+
   return (
     <Dialog open={isModalOpen} onOpenChange={handleDialogChange}>
-      <DialogContent aria-describedby="DndDescribedBy-0" className="sm:max-w-[425px]">
-        <form>
+      <DialogContent
+        aria-describedby="DndDescribedBy-0"
+        className="sm:max-w-[425px]"
+      >
+        <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Add New Task</DialogTitle>
           </DialogHeader>
@@ -48,7 +89,6 @@ const CreateTask = () => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Task title"
-                required
               />
             </div>
             <div className="grid gap-2">
