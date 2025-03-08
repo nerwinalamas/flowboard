@@ -1,11 +1,8 @@
 "use client";
 
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useTaskModal } from "@/hooks/useTaskModal";
-import KanbanColumn from "./kanban-column";
-import { Column, Task } from "@/lib/types";
-import { useState } from "react";
+import { useKanbanStore } from "@/hooks/useKanbanStore";
+import { Plus } from "lucide-react";
 import {
   closestCenter,
   DndContext,
@@ -22,7 +19,9 @@ import {
   SortableContext,
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import KanbanColumn from "./kanban-column";
 import TaskCard from "./task-card";
+import { Button } from "@/components/ui/button";
 
 const KanbanBoard = () => {
   const { onOpen } = useTaskModal();
@@ -32,65 +31,15 @@ const KanbanBoard = () => {
     })
   );
 
-  const [columns, setColumns] = useState<Column[]>([
-    {
-      id: "todo",
-      title: "Todo",
-      tasks: [
-        {
-          id: "1",
-          title: "Research competitors",
-          description: "Look into what our competitors are doing",
-          priority: "medium",
-        },
-        {
-          id: "2",
-          title: "Design new landing page",
-          description: "Create wireframes for the new landing page",
-          priority: "high",
-        },
-      ],
-    },
-    {
-      id: "in-progress",
-      title: "In Progress",
-      tasks: [
-        {
-          id: "3",
-          title: "Implement authentication",
-          description: "Add login and registration functionality",
-          priority: "high",
-        },
-        {
-          id: "4",
-          title: "Write documentation",
-          description: "Document the API endpoints",
-          priority: "low",
-        },
-      ],
-    },
-    {
-      id: "done",
-      title: "Done",
-      tasks: [
-        {
-          id: "5",
-          title: "Setup project repository",
-          description: "Initialize Git repo and configure CI/CD",
-          priority: "medium",
-        },
-        {
-          id: "6",
-          title: "Create database schema",
-          description: "Design and implement the initial database schema",
-          priority: "high",
-        },
-      ],
-    },
-  ]);
-
-  const [activeTask, setActiveTask] = useState<Task | null>(null);
-  const [activeColumn, setActiveColumn] = useState<Column | null>(null);
+  const {
+    columns,
+    activeTask,
+    activeColumn,
+    setActiveTask,
+    setActiveColumn,
+    setColumns,
+    moveTask,
+  } = useKanbanStore();
 
   const handleOnDragStart = (event: DragStartEvent) => {
     const { active } = event;
@@ -146,26 +95,8 @@ const KanbanBoard = () => {
         // If the task is already in this column, do nothing
         if (activeColumn.id === overId) return;
 
-        // Create updated columns by removing task from source and adding to destination
-        const updatedColumns = columns.map((col) => {
-          // Remove task from all columns
-          const filteredTasks = col.tasks.filter((t) => t.id !== activeTask.id);
-
-          // If this is the destination column, add the task
-          if (col.id === overId) {
-            return {
-              ...col,
-              tasks: [...filteredTasks, activeTask],
-            };
-          }
-
-          return {
-            ...col,
-            tasks: filteredTasks,
-          };
-        });
-
-        setColumns(updatedColumns);
+        // Move task between columns
+        moveTask(active.id.toString(), activeColumn.id, overId);
       } else {
         // This is a task being dragged over another task
         const overTaskId = over.id as string;
@@ -179,33 +110,15 @@ const KanbanBoard = () => {
 
         // If tasks are in different columns, move the active task to the over column
         if (activeColumn.id !== overColumn.id) {
-          const updatedColumns = columns.map((col) => {
-            // Remove the active task from its current column
-            if (col.id === activeColumn.id) {
-              return {
-                ...col,
-                tasks: col.tasks.filter((task) => task.id !== activeTask.id),
-              };
-            }
-
-            // Add the active task to the target column at the specific position
-            if (col.id === overColumn.id) {
-              const overTaskIndex = col.tasks.findIndex(
-                (task) => task.id === overTaskId
-              );
-              const newTasks = [...col.tasks];
-              newTasks.splice(overTaskIndex, 0, activeTask);
-
-              return {
-                ...col,
-                tasks: newTasks,
-              };
-            }
-
-            return col;
-          });
-
-          setColumns(updatedColumns);
+          const overTaskIndex = overColumn.tasks.findIndex(
+            (task) => task.id === overTaskId
+          );
+          moveTask(
+            active.id.toString(),
+            activeColumn.id,
+            overColumn.id,
+            overTaskIndex
+          );
         }
       }
     }
@@ -264,11 +177,13 @@ const KanbanBoard = () => {
 
         // If both tasks are in this column, reorder them
         if (activeIndex !== -1 && overIndex !== -1) {
-          const updatedColumns = [...columns];
-          updatedColumns[i] = {
+          const updatedColumn = {
             ...column,
             tasks: arrayMove(column.tasks, activeIndex, overIndex),
           };
+
+          const updatedColumns = [...columns];
+          updatedColumns[i] = updatedColumn;
 
           setColumns(updatedColumns);
           break;
@@ -283,7 +198,7 @@ const KanbanBoard = () => {
   return (
     <div className="h-full min-w-max space-y-4 p-4">
       <div className="flex justify-end">
-        <Button onClick={() => onOpen("createTask")} className="cursor-pointer">
+        <Button onClick={() => onOpen("createTask", "todo")} className="cursor-pointer">
           <Plus className="mr-2 h-4 w-4" />
           Add New Task
         </Button>
