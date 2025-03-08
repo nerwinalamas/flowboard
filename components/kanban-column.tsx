@@ -1,17 +1,17 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import TaskCard from "./task-card";
+import { useTaskModal } from "@/hooks/useTaskModal";
 import { Column } from "@/lib/types";
+import { Plus } from "lucide-react";
 import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
   useSortable,
 } from "@dnd-kit/sortable";
-import { useTaskModal } from "@/hooks/useTaskModal";
 import { CSS } from "@dnd-kit/utilities";
+import TaskCard from "./task-card";
+import { Button } from "@/components/ui/button";
 
 interface KanbanColumnProps {
   column: Column;
@@ -63,7 +63,7 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => onOpen("createTask")}
+          onClick={() => onOpen("createTask", column.id as "todo" | "in-progress" | "done")}
           className="hover:bg-gray-200 hover:cursor-pointer"
         >
           <Plus className="h-4 w-4" />
