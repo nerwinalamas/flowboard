@@ -2,11 +2,14 @@ import { create } from "zustand";
 
 export type ModalType = "createTask";
 
+type ColumnType = "todo" | "in-progress" | "done";
+
 type ModalStore = {
   type: ModalType | null;
   data?: string;
   isOpen: boolean;
-  onOpen: (type: ModalType, data?: string) => void;
+  columnId: ColumnType;
+  onOpen: (type: ModalType, columnId: ColumnType, data?: string) => void;
   onClose: () => void;
 };
 
@@ -14,6 +17,7 @@ export const useTaskModal = create<ModalStore>((set) => ({
   type: null,
   data: undefined,
   isOpen: false,
-  onOpen: (type, data) => set({ isOpen: true, type, data }),
+  columnId: "todo",
+  onOpen: (type, columnId, data) => set({ isOpen: true, type, columnId, data }),
   onClose: () => set({ type: null, data: undefined, isOpen: false }),
 }));
