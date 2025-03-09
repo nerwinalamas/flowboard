@@ -63,7 +63,9 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => onOpen("createTask", column.id as "todo" | "in-progress" | "done")}
+          onClick={() =>
+            onOpen("createTask", column.id as "todo" | "in-progress" | "done")
+          }
           className="hover:bg-gray-200 hover:cursor-pointer"
         >
           <Plus className="h-4 w-4" />
@@ -83,7 +85,9 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
               <p className="text-sm text-muted-foreground">No tasks yet</p>
             </div>
           ) : (
-            column.tasks.map((task) => <TaskCard key={task.id} task={task} />)
+            column.tasks.map((task) => (
+              <TaskCard key={task.id} task={task} columnId={column.id} />
+            ))
           )}
         </SortableContext>
       </div>
