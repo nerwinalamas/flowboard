@@ -1,6 +1,6 @@
 "use client";
 
-import { useTaskModal } from "@/hooks/useTaskModal";
+import { ColumnType, useTaskModal } from "@/hooks/useTaskModal";
 import { useKanbanStore } from "@/hooks/useKanbanStore";
 import { Plus } from "lucide-react";
 import {
@@ -198,7 +198,10 @@ const KanbanBoard = () => {
   return (
     <div className="h-full min-w-max space-y-4 p-4">
       <div className="flex justify-end">
-        <Button onClick={() => onOpen("createTask", "todo")} className="cursor-pointer">
+        <Button
+          onClick={() => onOpen("createTask", "todo")}
+          className="cursor-pointer"
+        >
           <Plus className="mr-2 h-4 w-4" />
           Add New Task
         </Button>
@@ -224,7 +227,10 @@ const KanbanBoard = () => {
 
         <DragOverlay>
           {activeTask ? (
-            <TaskCard task={activeTask} />
+            <TaskCard
+              task={activeTask}
+              columnId={activeColumn?.id as ColumnType}
+            />
           ) : activeColumn ? (
             <div className="w-[400px] h-full bg-gray-100 space-y-4 p-4 rounded-lg opacity-80">
               <div className="flex items-center justify-between">
@@ -245,7 +251,11 @@ const KanbanBoard = () => {
                 ) : (
                   <div className="space-y-2">
                     {activeColumn.tasks.map((task) => (
-                      <TaskCard key={task.id} task={task} />
+                      <TaskCard
+                        key={task.id}
+                        task={task}
+                        columnId={activeColumn.id as ColumnType}
+                      />
                     ))}
                   </div>
                 )}
