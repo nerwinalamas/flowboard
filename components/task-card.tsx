@@ -1,6 +1,8 @@
 "use client";
 
 import { Task } from "@/lib/types";
+import { useKanbanStore } from "@/hooks/useKanbanStore";
+import { ColumnType, useTaskModal } from "@/hooks/useTaskModal";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -13,15 +15,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useKanbanStore } from "@/hooks/useKanbanStore";
 
 interface TaskCardProps {
   task: Task;
-  columnId: string;
+  columnId: ColumnType;
 }
 
 const TaskCard = ({ task, columnId }: TaskCardProps) => {
   const { deleteTask } = useKanbanStore();
+   const { onOpen } = useTaskModal();
 
   const priorityColors = {
     low: "bg-blue-100 text-blue-800 hover:bg-blue-100/80",
@@ -79,7 +81,7 @@ const TaskCard = ({ task, columnId }: TaskCardProps) => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem onClick={() => onOpen("editTask", columnId, task)} className="cursor-pointer">
               <Pencil className="mr-2 h-4 w-4" />
               Edit
             </DropdownMenuItem>
