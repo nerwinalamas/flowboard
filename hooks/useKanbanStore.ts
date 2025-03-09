@@ -15,7 +15,8 @@ interface KanbanState {
     index?: number
   ) => void;
   moveColumn: (sourceIndex: number, destinationIndex: number) => void;
-  addTask: (columnId: string, task: Omit<Task, "id">) => void;
+  addTask: (columnId: string, task: Task) => void;
+  deleteTask: (taskId: string, columnId: string) => void;
 }
 
 // Initial columns data
@@ -144,17 +145,28 @@ export const useKanbanStore = create<KanbanState>((set) => ({
   },
 
   addTask: (columnId, taskData) => {
-    const newTask: Task = {
-      id: crypto.randomUUID(),
-      ...taskData,
-    };
-
     set((state) => {
       const updatedColumns = state.columns.map((column) => {
         if (column.id === columnId) {
           return {
             ...column,
-            tasks: [...column.tasks, newTask],
+            tasks: [...column.tasks, taskData],
+          };
+        }
+        return column;
+      });
+
+      return { columns: updatedColumns };
+    });
+  },
+
+  deleteTask: (taskId, columnId) => {
+    set((state) => {
+      const updatedColumns = state.columns.map((column) => {
+        if (column.id === columnId) {
+          return {
+            ...column,
+            tasks: column.tasks.filter((task) => task.id !== taskId),
           };
         }
         return column;
