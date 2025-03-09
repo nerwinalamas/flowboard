@@ -1,17 +1,28 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal } from "lucide-react";
 import { Task } from "@/lib/types";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useKanbanStore } from "@/hooks/useKanbanStore";
 
 interface TaskCardProps {
   task: Task;
+  columnId: string;
 }
 
-const TaskCard = ({ task }: TaskCardProps) => {
+const TaskCard = ({ task, columnId }: TaskCardProps) => {
+  const { deleteTask } = useKanbanStore();
+
   const priorityColors = {
     low: "bg-blue-100 text-blue-800 hover:bg-blue-100/80",
     medium: "bg-yellow-100 text-yellow-800 hover:bg-yellow-100/80",
@@ -40,6 +51,16 @@ const TaskCard = ({ task }: TaskCardProps) => {
     zIndex: isDragging ? 10 : 1,
   };
 
+  const handleDelete = () => {
+    try {
+      deleteTask(task.id, columnId);
+      toast.success("Task has been removed successfully");
+    } catch (error) {
+      console.log("Error deleting task:", error);
+      toast.error("Failed to delete task");
+    }
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -50,9 +71,27 @@ const TaskCard = ({ task }: TaskCardProps) => {
     >
       <div className="flex items-start justify-between">
         <h3 className="font-medium">{task.title}</h3>
-        <Button variant="ghost" size="icon" className="h-6 w-6">
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-6 w-6">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem className="cursor-pointer">
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={handleDelete}
+              className="cursor-pointer text-red-600 focus:text-red-600"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <p className="text-sm text-muted-foreground line-clamp-2">
         {task.description}
