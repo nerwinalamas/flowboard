@@ -1,6 +1,6 @@
 "use client";
 
-import { useTaskModal } from "@/hooks/useTaskModal";
+import { ColumnType, useTaskModal } from "@/hooks/useTaskModal";
 import { Column } from "@/lib/types";
 import { Plus } from "lucide-react";
 import { useDroppable } from "@dnd-kit/core";
@@ -86,7 +86,7 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
             </div>
           ) : (
             column.tasks.map((task) => (
-              <TaskCard key={task.id} task={task} columnId={column.id} />
+              <TaskCard key={task.id} task={task} columnId={column.id as ColumnType} />
             ))
           )}
         </SortableContext>
