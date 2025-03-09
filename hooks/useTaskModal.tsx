@@ -1,17 +1,18 @@
 "use client";
 
+import { Task } from "@/lib/types";
 import { create } from "zustand";
 
-export type ModalType = "createTask";
+export type ModalType = "createTask" | "editTask";
 
-type ColumnType = "todo" | "in-progress" | "done";
+export type ColumnType = "todo" | "in-progress" | "done";
 
 type ModalStore = {
   type: ModalType | null;
-  data?: string;
+  data?: string | Task;
   isOpen: boolean;
   columnId: ColumnType;
-  onOpen: (type: ModalType, columnId: ColumnType, data?: string) => void;
+  onOpen: (type: ModalType, columnId: ColumnType, data?: string | Task) => void;
   onClose: () => void;
 };
 
