@@ -56,6 +56,7 @@ const CreateTask = () => {
 
     try {
       const taskData = {
+        id: crypto.randomUUID(),
         title: title.trim(),
         description: description.trim(),
         priority,
@@ -66,7 +67,7 @@ const CreateTask = () => {
       toast.success("Task added successfully");
       handleDialogChange();
     } catch (error) {
-      console.log("Error create task:", error);
+      console.log("Error creating task:", error);
       toast.error("Failed to create task");
     }
   };
@@ -74,7 +75,7 @@ const CreateTask = () => {
   return (
     <Dialog open={isModalOpen} onOpenChange={handleDialogChange}>
       <DialogContent
-        aria-describedby="DndDescribedBy-0"
+        aria-describedby={undefined}
         className="sm:max-w-[425px]"
       >
         <form onSubmit={handleSubmit}>
