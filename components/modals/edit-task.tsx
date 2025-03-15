@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Task } from "@/lib/types";
+import { useEffect } from "react";
+import { Priority, Task } from "@/lib/types";
+import { formSchema } from "@/lib/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useTaskModal } from "@/hooks/useTaskModal";
 import { useKanbanStore } from "@/hooks/useKanbanStore";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import {
   Dialog,
   DialogContent,
@@ -17,8 +21,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
-
-type Priority = "low" | "medium" | "high";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 
 const EditTask = () => {
   const { isOpen, onClose, type, columnId, data } = useTaskModal();
@@ -27,54 +37,40 @@ const EditTask = () => {
 
   const editTask = useKanbanStore((state) => state.editTask);
 
-  const [id, setId] = useState("");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState<Priority>("low");
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      priority: "low" as Priority,
+    },
+  });
 
   useEffect(() => {
     if (isModalOpen && taskData) {
-      setId(taskData.id);
-      setTitle(taskData.title);
-      setDescription(taskData.description);
-      setPriority(taskData.priority as Priority);
+      form.reset({
+        title: taskData.title,
+        description: taskData.description,
+        priority: taskData.priority as Priority,
+      });
     }
-  }, [isModalOpen, taskData]);
+  }, [isModalOpen, taskData, form]);
 
   const handleDialogChange = () => {
     onClose();
-
-    setTitle("");
-    setDescription("");
-    setPriority("low");
+    form.reset();
   };
 
-  const handlePriorityChange = (value: string) => {
-    setPriority(value as Priority);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!title.trim()) {
-      toast.error("Task title is required");
-      return;
-    }
-
-    if (!description.trim()) {
-      toast.error("Task description is required");
-      return;
-    }
-
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
     try {
       const taskUpdatedData = {
-        id,
-        title: title.trim(),
-        description: description.trim(),
-        priority,
+        id: taskData?.id || "",
+        title: data.title.trim(),
+        description: data.description.trim(),
+        priority: data.priority,
       };
 
-      editTask(id, columnId, taskUpdatedData);
+      editTask(taskUpdatedData.id, columnId, taskUpdatedData);
 
       toast.success("Task updated successfully");
       handleDialogChange();
@@ -87,69 +83,96 @@ const EditTask = () => {
   return (
     <Dialog open={isModalOpen} onOpenChange={handleDialogChange}>
       <DialogContent aria-describedby={undefined} className="sm:max-w-[425px]">
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>Edit Task</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Task title"
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <DialogHeader>
+              <DialogTitle>Edit Task</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              {/* Title Field */}
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Task title" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Description Field */}
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        placeholder="Task description"
+                        rows={3}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Priority Field */}
+              <FormField
+                control={form.control}
+                name="priority"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Priority</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex space-x-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="low" id="low" />
+                          <Label htmlFor="low" className="cursor-pointer">
+                            Low
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="medium" id="medium" />
+                          <Label htmlFor="medium" className="cursor-pointer">
+                            Medium
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="high" id="high" />
+                          <Label htmlFor="high" className="cursor-pointer">
+                            High
+                          </Label>
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Task description"
-                rows={3}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label>Priority</Label>
-              <RadioGroup
-                value={priority}
-                onValueChange={handlePriorityChange}
-                className="flex space-x-4"
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleDialogChange}
               >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="low" id="low" />
-                  <Label htmlFor="low" className="cursor-pointer">
-                    Low
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="medium" id="medium" />
-                  <Label htmlFor="medium" className="cursor-pointer">
-                    Medium
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="high" id="high" />
-                  <Label htmlFor="high" className="cursor-pointer">
-                    High
-                  </Label>
-                </div>
-              </RadioGroup>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleDialogChange}
-            >
-              Cancel
-            </Button>
-            <Button type="submit">Update Task</Button>
-          </DialogFooter>
-        </form>
+                Cancel
+              </Button>
+              <Button type="submit">Update Task</Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
