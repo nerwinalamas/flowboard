@@ -10,3 +10,5 @@ export interface Column {
   title: string;
   tasks: Task[];
 }
+
+export type Priority = "low" | "medium" | "high";
