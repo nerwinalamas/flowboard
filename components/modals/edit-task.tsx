@@ -2,12 +2,11 @@
 
 import { useEffect } from "react";
 import { Priority, Task } from "@/lib/types";
-import { formSchema } from "@/lib/schema";
+import { taskSchema, taskData } from "@/lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTaskModal } from "@/hooks/useTaskModal";
 import { useKanbanStore } from "@/hooks/useKanbanStore";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import {
   Dialog,
   DialogContent,
@@ -37,8 +36,8 @@ const EditTask = () => {
 
   const editTask = useKanbanStore((state) => state.editTask);
 
-  const form = useForm({
-    resolver: zodResolver(formSchema),
+  const form = useForm<taskData>({
+    resolver: zodResolver(taskSchema),
     defaultValues: {
       title: "",
       description: "",
@@ -61,7 +60,7 @@ const EditTask = () => {
     form.reset();
   };
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
+  const onSubmit = (data: taskData) => {
     try {
       const taskUpdatedData = {
         id: taskData?.id || "",
