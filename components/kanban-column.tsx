@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnType, useTaskModal } from "@/hooks/useTaskModal";
-import { Column } from "@/lib/types";
+import { Column } from "@/lib/schema";
 import { Plus } from "lucide-react";
 import { useDroppable } from "@dnd-kit/core";
 import {

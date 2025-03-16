@@ -1,9 +1,8 @@
 "use client";
 
-import { Priority } from "@/lib/types";
 import { useTaskModal } from "@/hooks/useTaskModal";
 import { useKanbanStore } from "@/hooks/useKanbanStore";
-import { taskData, taskSchema } from "@/lib/schema";
+import { TaskFormData, taskSchema } from "@/lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
@@ -34,12 +33,12 @@ const CreateTask = () => {
 
   const addTask = useKanbanStore((state) => state.addTask);
 
-  const form = useForm<taskData>({
+  const form = useForm<TaskFormData>({
     resolver: zodResolver(taskSchema),
     defaultValues: {
       title: "",
       description: "",
-      priority: "low" as Priority,
+      priority: "low",
     },
   });
 
@@ -48,7 +47,7 @@ const CreateTask = () => {
     form.reset();
   };
 
-  const onSubmit = (data: taskData) => {
+  const onSubmit = (data: TaskFormData) => {
     try {
       const taskData = {
         id: `task-${data.title.toLowerCase().replace(/\s+/g, "-")}`,

@@ -1,6 +1,6 @@
 "use client";
 
-import { Task } from "@/lib/types";
+import { Task } from "@/lib/schema";
 import { create } from "zustand";
 
 export type ModalType = "createTask" | "editTask";

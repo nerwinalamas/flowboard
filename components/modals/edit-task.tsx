@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Priority, Task } from "@/lib/types";
-import { taskSchema, taskData } from "@/lib/schema";
+import { taskSchema, TaskFormData, Task } from "@/lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTaskModal } from "@/hooks/useTaskModal";
 import { useKanbanStore } from "@/hooks/useKanbanStore";
@@ -36,12 +35,12 @@ const EditTask = () => {
 
   const editTask = useKanbanStore((state) => state.editTask);
 
-  const form = useForm<taskData>({
+  const form = useForm<TaskFormData>({
     resolver: zodResolver(taskSchema),
     defaultValues: {
       title: "",
       description: "",
-      priority: "low" as Priority,
+      priority: "low",
     },
   });
 
@@ -50,7 +49,7 @@ const EditTask = () => {
       form.reset({
         title: taskData.title,
         description: taskData.description,
-        priority: taskData.priority as Priority,
+        priority: taskData.priority,
       });
     }
   }, [isModalOpen, taskData, form]);
@@ -60,7 +59,7 @@ const EditTask = () => {
     form.reset();
   };
 
-  const onSubmit = (data: taskData) => {
+  const onSubmit = (data: TaskFormData) => {
     try {
       const taskUpdatedData = {
         id: taskData?.id || "",

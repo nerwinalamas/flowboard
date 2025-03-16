@@ -1,6 +1,6 @@
 "use client";
 
-import { Task } from "@/lib/types";
+import { Task } from "@/lib/schema";
 import { useKanbanStore } from "@/hooks/useKanbanStore";
 import { ColumnType, useTaskModal } from "@/hooks/useTaskModal";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";

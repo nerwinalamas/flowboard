@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Column, Task } from "@/lib/types";
+import { Column, Task } from "@/lib/schema";
 
 interface KanbanState {
   columns: Column[];
