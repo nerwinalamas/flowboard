@@ -6,4 +6,16 @@ export const taskSchema = z.object({
   priority: z.enum(["low", "medium", "high"]),
 });
 
-export type taskData = z.infer<typeof taskSchema>
+export const taskWithIdSchema = taskSchema.extend({
+  id: z.string(),
+});
+
+export const columnSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  tasks: z.array(taskWithIdSchema),
+});
+
+export type TaskFormData = z.infer<typeof taskSchema>;
+export type Task = z.infer<typeof taskWithIdSchema>;
+export type Column = z.infer<typeof columnSchema>;
