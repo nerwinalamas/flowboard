@@ -69,6 +69,7 @@ const TaskCard = ({ task, columnId }: TaskCardProps) => {
       style={style}
       {...attributes}
       {...listeners}
+      aria-describedby="DndDescribedBy-0"
       className="w-full space-y-2 border bg-white p-4 rounded-lg cursor-pointer shadow-sm hover:shadow-md transition-all duration-200"
     >
       <div className="flex items-start justify-between">

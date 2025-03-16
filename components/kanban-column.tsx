@@ -51,6 +51,8 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
       style={style}
       {...attributes}
       {...listeners}
+      suppressHydrationWarning={true}
+      aria-disabled={false}
       className="w-[400px] h-full bg-gray-100 space-y-4 p-4 rounded-lg shadow-sm backdrop-blur-sm"
     >
       <div className="flex items-center justify-between">
@@ -86,7 +88,11 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
             </div>
           ) : (
             column.tasks.map((task) => (
-              <TaskCard key={task.id} task={task} columnId={column.id as ColumnType} />
+              <TaskCard
+                key={task.id}
+                task={task}
+                columnId={column.id as ColumnType}
+              />
             ))
           )}
         </SortableContext>
