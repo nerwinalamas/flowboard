@@ -1,6 +1,7 @@
 "use client";
 
 import { ColumnType, useTaskModal } from "@/hooks/useTaskModal";
+import { useColumnModal } from "@/hooks/useColumnModal";
 import { useKanbanStore } from "@/hooks/useKanbanStore";
 import { Plus } from "lucide-react";
 import {
@@ -24,7 +25,8 @@ import TaskCard from "./task-card";
 import { Button } from "@/components/ui/button";
 
 const KanbanBoard = () => {
-  const { onOpen } = useTaskModal();
+  const { onOpen: onTaskModalOpen } = useTaskModal();
+  const { onOpen: onColumnModalOpen } = useColumnModal();
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 5 },
@@ -196,10 +198,18 @@ const KanbanBoard = () => {
   };
 
   return (
-    <div className="h-full min-w-max space-y-4 p-4">
-      <div className="flex justify-end">
+    <div className="h-full min-w-max space-y-8 p-4">
+      <div className="flex justify-end items-center gap-4">
         <Button
-          onClick={() => onOpen("createTask", "todo")}
+          variant="outline"
+          onClick={() => onColumnModalOpen("createColumn")}
+          className="cursor-pointer"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Add Column
+        </Button>
+        <Button
+          onClick={() => onTaskModalOpen("createTask", "todo")}
           className="cursor-pointer"
         >
           <Plus className="mr-2 h-4 w-4" />
@@ -222,6 +232,16 @@ const KanbanBoard = () => {
             {columns.map((column) => (
               <KanbanColumn key={column.id} column={column} />
             ))}
+            <div className="flex-shrink-0 w-[400px] min-h-[345px] h-full border-2 border-dashed border-gray-200 rounded-lg flex items-center justify-center">
+              <Button
+                variant="ghost"
+                onClick={() => onColumnModalOpen("createColumn")}
+                className="text-gray-500 gap-1.5"
+              >
+                <Plus className="h-4 w-4" />
+                Add Column
+              </Button>
+            </div>
           </SortableContext>
         </div>
 
