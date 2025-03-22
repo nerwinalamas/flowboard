@@ -22,6 +22,7 @@ interface KanbanState {
     columnId: string,
     updatedTask: Partial<Task>
   ) => void;
+  addColumn: (column: Column) => void;
 }
 
 // Initial columns data
@@ -180,7 +181,7 @@ export const useKanbanStore = create<KanbanState>((set) => ({
       return { columns: updatedColumns };
     });
   },
-  
+
   editTask: (taskId, columnId, updatedTask) => {
     set((state) => {
       const updatedColumns = state.columns.map((column) => {
@@ -199,5 +200,11 @@ export const useKanbanStore = create<KanbanState>((set) => ({
 
       return { columns: updatedColumns };
     });
+  },
+
+  addColumn: (column) => {
+    set((state) => ({
+      columns: [...state.columns, column],
+    }));
   },
 }));
