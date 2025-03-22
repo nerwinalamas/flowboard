@@ -12,7 +12,7 @@ export const taskWithIdSchema = taskSchema.extend({
 
 export const columnSchema = z.object({
   id: z.string(),
-  title: z.string(),
+  title: z.string().min(1, "Column name is required"),
   tasks: z.array(taskWithIdSchema),
 });
 
