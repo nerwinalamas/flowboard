@@ -22,9 +22,10 @@ interface TaskCardProps {
 }
 
 const TaskCard = ({ task, columnId }: TaskCardProps) => {
-  const { deleteTask } = useKanbanStore();
-   const { onOpen } = useTaskModal();
-
+  const { onOpen } = useTaskModal();
+  
+  const deleteTask = useKanbanStore((state) => state.deleteTask);
+  
   const priorityColors = {
     low: "bg-blue-100 text-blue-800 hover:bg-blue-100/80",
     medium: "bg-yellow-100 text-yellow-800 hover:bg-yellow-100/80",
@@ -82,7 +83,10 @@ const TaskCard = ({ task, columnId }: TaskCardProps) => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onOpen("editTask", columnId, task)} className="cursor-pointer">
+            <DropdownMenuItem
+              onClick={() => onOpen("editTask", columnId, task)}
+              className="cursor-pointer"
+            >
               <Pencil className="mr-2 h-4 w-4" />
               Edit
             </DropdownMenuItem>
