@@ -95,7 +95,11 @@ const EditTask = () => {
                   <FormItem>
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Task title" />
+                      <Input
+                        {...field}
+                        placeholder="Task title"
+                        disabled={form.formState.isSubmitting}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -114,6 +118,7 @@ const EditTask = () => {
                         {...field}
                         placeholder="Task description"
                         rows={3}
+                        disabled={form.formState.isSubmitting}
                       />
                     </FormControl>
                     <FormMessage />
@@ -133,6 +138,7 @@ const EditTask = () => {
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                         className="flex space-x-4"
+                        disabled={form.formState.isSubmitting}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="low" id="low" />
@@ -164,10 +170,13 @@ const EditTask = () => {
                 type="button"
                 variant="outline"
                 onClick={handleDialogChange}
+                disabled={form.formState.isSubmitting}
               >
                 Cancel
               </Button>
-              <Button type="submit">Update Task</Button>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Updating..." : "Update Task"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

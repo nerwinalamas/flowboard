@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -68,11 +69,15 @@ const CreateTask = () => {
 
   return (
     <Dialog open={isModalOpen} onOpenChange={handleDialogChange}>
-      <DialogContent aria-describedby={undefined} className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>
               <DialogTitle>Add New Task</DialogTitle>
+              <DialogDescription>
+                Provide clear context to help team members understand the task
+                requirements.
+              </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               {/* Title Field */}
@@ -83,7 +88,11 @@ const CreateTask = () => {
                   <FormItem>
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Task title" />
+                      <Input
+                        {...field}
+                        placeholder="Task title"
+                        disabled={form.formState.isSubmitting}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -102,6 +111,7 @@ const CreateTask = () => {
                         {...field}
                         placeholder="Task description"
                         rows={3}
+                        disabled={form.formState.isSubmitting}
                       />
                     </FormControl>
                     <FormMessage />
@@ -121,6 +131,7 @@ const CreateTask = () => {
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                         className="flex space-x-4"
+                        disabled={form.formState.isSubmitting}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="low" id="low" />
@@ -152,10 +163,13 @@ const CreateTask = () => {
                 type="button"
                 variant="outline"
                 onClick={handleDialogChange}
+                disabled={form.formState.isSubmitting}
               >
                 Cancel
               </Button>
-              <Button type="submit">Save Task</Button>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Saving..." : "Save Task"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

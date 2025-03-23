@@ -25,12 +25,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-
 const CreateColumn = () => {
   const { isOpen, onClose, type } = useColumnModal();
   const isModalOpen = isOpen && type === "createColumn";
 
-   const addColumn = useKanbanStore((state) => state.addColumn);
+  const addColumn = useKanbanStore((state) => state.addColumn);
 
   const form = useForm<ColumnFormData>({
     resolver: zodResolver(columnSchema),
@@ -87,6 +86,7 @@ const CreateColumn = () => {
                         {...field}
                         placeholder="e.g., Backlog, Review, Testing"
                         autoFocus
+                        disabled={form.formState.isSubmitting}
                       />
                     </FormControl>
                     <FormMessage />
@@ -99,10 +99,13 @@ const CreateColumn = () => {
                 type="button"
                 variant="outline"
                 onClick={handleDialogChange}
+                disabled={form.formState.isSubmitting}
               >
                 Cancel
               </Button>
-              <Button type="submit">Add Column</Button>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Adding..." : "Add Column"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>
