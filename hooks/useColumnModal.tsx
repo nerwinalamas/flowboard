@@ -1,14 +1,15 @@
 "use client";
 
+import { Column } from "@/lib/schema";
 import { create } from "zustand";
 
-export type ModalType = "createColumn";
+export type ModalType = "createColumn" | "editColumn";
 
 type ModalStore = {
   type: ModalType | null;
-  data?: string;
+  data?: string | Column;
   isOpen: boolean;
-  onOpen: (type: ModalType, data?: string) => void;
+  onOpen: (type: ModalType, data?: string | Column) => void;
   onClose: () => void;
 };
 
