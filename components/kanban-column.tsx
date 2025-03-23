@@ -1,8 +1,9 @@
 "use client";
 
-import { ColumnType, useTaskModal } from "@/hooks/useTaskModal";
 import { Column } from "@/lib/schema";
-import { Plus } from "lucide-react";
+import { ColumnType, useTaskModal } from "@/hooks/useTaskModal";
+import { useKanbanStore } from "@/hooks/useKanbanStore";
+import { MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -12,13 +13,24 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import TaskCard from "./task-card";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
+import { useColumnModal } from "@/hooks/useColumnModal";
 
 interface KanbanColumnProps {
   column: Column;
 }
 
 const KanbanColumn = ({ column }: KanbanColumnProps) => {
-  const { onOpen } = useTaskModal();
+  const { onOpen: onTaskModalOpen } = useTaskModal();
+  const { onOpen: onColumnModalOpen } = useColumnModal();
+
+  const deleteColumn = useKanbanStore((state) => state.deleteColumn);
 
   const {
     attributes,
@@ -45,6 +57,16 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
     id: `column-${column.id}`,
   });
 
+  const handleDelete = () => {
+    try {
+      deleteColumn(column.id);
+      toast.success("Column has been removed successfully");
+    } catch (error) {
+      console.log("Error deleting column:", error);
+      toast.error("Failed to delete column");
+    }
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -62,16 +84,38 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
             ({column.tasks.length})
           </span>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() =>
-            onOpen("createTask", column.id as "todo" | "in-progress" | "done")
-          }
-          className="hover:bg-gray-200 hover:cursor-pointer"
-        >
-          <Plus className="h-4 w-4" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-6 w-6">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={() =>
+                onTaskModalOpen("createTask", column.id as ColumnType)
+              }
+              className="cursor-pointer"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Add Task
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => onColumnModalOpen("editColumn", column)}
+              className="cursor-pointer"
+            >
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={handleDelete}
+              className="cursor-pointer text-red-600 focus:text-red-600"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div
