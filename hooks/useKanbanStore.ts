@@ -23,6 +23,8 @@ interface KanbanState {
     updatedTask: Partial<Task>
   ) => void;
   addColumn: (column: Column) => void;
+  editColumn: (columnId: string, updatedColumn: Partial<Column>) => void;
+  deleteColumn: (columnId: string) => void;
 }
 
 // Initial columns data
@@ -205,6 +207,25 @@ export const useKanbanStore = create<KanbanState>((set) => ({
   addColumn: (column) => {
     set((state) => ({
       columns: [...state.columns, column],
+    }));
+  },
+
+  editColumn: (columnId, updatedColumn) => {
+    set((state) => {
+      const updatedColumns = state.columns.map((column) => {
+        if (column.id === columnId) {
+          return { ...column, ...updatedColumn };
+        }
+        return column;
+      });
+
+      return { columns: updatedColumns };
+    });
+  },
+
+  deleteColumn: (columnId) => {
+    set((state) => ({
+      columns: state.columns.filter((column) => column.id !== columnId),
     }));
   },
 }));
