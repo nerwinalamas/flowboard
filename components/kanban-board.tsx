@@ -1,6 +1,6 @@
 "use client";
 
-import { ColumnType, useTaskModal } from "@/hooks/useTaskModal";
+import { ColumnType } from "@/hooks/useTaskModal";
 import { useColumnModal } from "@/hooks/useColumnModal";
 import { useKanbanStore } from "@/hooks/useKanbanStore";
 import { Plus } from "lucide-react";
@@ -25,7 +25,6 @@ import TaskCard from "./task-card";
 import { Button } from "@/components/ui/button";
 
 const KanbanBoard = () => {
-  const { onOpen: onTaskModalOpen } = useTaskModal();
   const { onOpen: onColumnModalOpen } = useColumnModal();
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -198,25 +197,7 @@ const KanbanBoard = () => {
   };
 
   return (
-    <div className="h-full min-w-max space-y-8 p-4">
-      <div className="flex justify-end items-center gap-4">
-        <Button
-          variant="outline"
-          onClick={() => onColumnModalOpen("createColumn")}
-          className="cursor-pointer"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Column
-        </Button>
-        <Button
-          onClick={() => onTaskModalOpen("createTask", "todo")}
-          className="cursor-pointer"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add New Task
-        </Button>
-      </div>
-
+    <div className="h-full min-w-max p-4">
       <DndContext
         collisionDetection={closestCenter}
         onDragStart={handleOnDragStart}
@@ -224,7 +205,7 @@ const KanbanBoard = () => {
         onDragEnd={handleOnDragEnd}
         sensors={sensors}
       >
-        <div className="flex gap-4 overflow-x-auto pb-4">
+        <div className="flex gap-4 pb-4">
           <SortableContext
             items={columns.map((col) => `column-${col.id}`)}
             strategy={horizontalListSortingStrategy}
