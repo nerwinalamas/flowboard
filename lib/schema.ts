@@ -16,6 +16,13 @@ export const taskWithIdSchema = taskSchema.extend({
   id: z.string(),
 });
 
+export const deleteTaskSchema = z.object({
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(30, "Title must be at most 30 characters"),
+});
+
 export const columnSchema = z.object({
   id: z.string(),
   title: z
@@ -27,4 +34,5 @@ export const columnSchema = z.object({
 
 export type TaskFormData = z.infer<typeof taskSchema>;
 export type Task = z.infer<typeof taskWithIdSchema>;
+export type DeleteTaskFormData = z.infer<typeof deleteTaskSchema>;
 export type Column = z.infer<typeof columnSchema>;
