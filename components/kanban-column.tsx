@@ -2,7 +2,7 @@
 
 import { Column } from "@/lib/schema";
 import { ColumnType, useTaskModal } from "@/hooks/useTaskModal";
-import { useKanbanStore } from "@/hooks/useKanbanStore";
+import { useColumnModal } from "@/hooks/useColumnModal";
 import { MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { useDroppable } from "@dnd-kit/core";
 import {
@@ -19,8 +19,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { toast } from "sonner";
-import { useColumnModal } from "@/hooks/useColumnModal";
 
 interface KanbanColumnProps {
   column: Column;
@@ -29,8 +27,6 @@ interface KanbanColumnProps {
 const KanbanColumn = ({ column }: KanbanColumnProps) => {
   const { onOpen: onTaskModalOpen } = useTaskModal();
   const { onOpen: onColumnModalOpen } = useColumnModal();
-
-  const deleteColumn = useKanbanStore((state) => state.deleteColumn);
 
   const {
     attributes,
@@ -56,16 +52,6 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
   const { setNodeRef: setTasksRef } = useDroppable({
     id: `column-${column.id}`,
   });
-
-  const handleDelete = () => {
-    try {
-      deleteColumn(column.id);
-      toast.success("Column has been removed successfully");
-    } catch (error) {
-      console.log("Error deleting column:", error);
-      toast.error("Failed to delete column");
-    }
-  };
 
   return (
     <div
@@ -108,7 +94,7 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={handleDelete}
+              onClick={() => onColumnModalOpen("deleteColumn", column)}
               className="cursor-pointer text-red-600 focus:text-red-600"
             >
               <Trash2 className="mr-2 h-4 w-4" />
