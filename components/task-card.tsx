@@ -1,12 +1,10 @@
 "use client";
 
 import { Task } from "@/lib/schema";
-import { useKanbanStore } from "@/hooks/useKanbanStore";
 import { ColumnType, useTaskModal } from "@/hooks/useTaskModal";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -23,9 +21,7 @@ interface TaskCardProps {
 
 const TaskCard = ({ task, columnId }: TaskCardProps) => {
   const { onOpen } = useTaskModal();
-  
-  const deleteTask = useKanbanStore((state) => state.deleteTask);
-  
+
   const priorityColors = {
     low: "bg-blue-100 text-blue-800 hover:bg-blue-100/80",
     medium: "bg-yellow-100 text-yellow-800 hover:bg-yellow-100/80",
@@ -52,16 +48,6 @@ const TaskCard = ({ task, columnId }: TaskCardProps) => {
     transition,
     opacity: isDragging ? 0.5 : 1,
     zIndex: isDragging ? 10 : 1,
-  };
-
-  const handleDelete = () => {
-    try {
-      deleteTask(task.id, columnId);
-      toast.success("Task has been removed successfully");
-    } catch (error) {
-      console.log("Error deleting task:", error);
-      toast.error("Failed to delete task");
-    }
   };
 
   return (
@@ -91,7 +77,7 @@ const TaskCard = ({ task, columnId }: TaskCardProps) => {
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={handleDelete}
+              onClick={() => onOpen("deleteTask", columnId, task)}
               className="cursor-pointer text-red-600 focus:text-red-600"
             >
               <Trash2 className="mr-2 h-4 w-4" />
