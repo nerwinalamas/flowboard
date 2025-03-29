@@ -3,7 +3,7 @@
 import { Column } from "@/lib/schema";
 import { create } from "zustand";
 
-export type ModalType = "createColumn" | "editColumn";
+export type ModalType = "createColumn" | "editColumn" | "deleteColumn";
 
 type ModalStore = {
   type: ModalType | null;

@@ -3,7 +3,7 @@
 import { Task } from "@/lib/schema";
 import { create } from "zustand";
 
-export type ModalType = "createTask" | "editTask";
+export type ModalType = "createTask" | "editTask" | "deleteTask";
 
 export type ColumnType = "todo" | "in-progress" | "done";
 
