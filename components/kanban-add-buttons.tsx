@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useColumnModal } from "@/hooks/useColumnModal";
 import { useTaskModal } from "@/hooks/useTaskModal";
 import { Plus } from "lucide-react";
+import { ModeToggle } from "./mode-toggle";
 
 const KanbanAddButtons = () => {
   const { onOpen: onTaskModalOpen } = useTaskModal();
@@ -26,6 +27,7 @@ const KanbanAddButtons = () => {
         <Plus className="mr-2 h-4 w-4" />
         Add New Task
       </Button>
+      <ModeToggle />
     </div>
   );
 };
