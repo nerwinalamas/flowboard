@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -80,11 +81,15 @@ const EditTask = () => {
 
   return (
     <Dialog open={isModalOpen} onOpenChange={handleDialogChange}>
-      <DialogContent aria-describedby={undefined} className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>
               <DialogTitle>Edit Task</DialogTitle>
+              <DialogDescription>
+                Modify task information including title, description, and
+                priority level.
+              </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               {/* Title Field */}
