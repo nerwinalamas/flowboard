@@ -3,18 +3,12 @@
 import { Task } from "@/lib/schema";
 import { ColumnType, useTaskModal } from "@/hooks/useTaskModal";
 import { useKanbanStore } from "@/hooks/useKanbanStore";
-import { Copy, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Copy, Pencil, Trash2 } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import KanbanDropdownMenu, { DropdownMenuItem } from "./kanban-dropdown-menu";
 
 interface TaskCardProps {
   task: Task;
@@ -65,6 +59,25 @@ const TaskCard = ({ task, columnId }: TaskCardProps) => {
     }
   };
 
+  const DROPDOWN_MENU_ITEMS: DropdownMenuItem[] = [
+    {
+      label: "Edit",
+      icon: Pencil,
+      onClick: () => onOpen("editTask", columnId, task),
+    },
+    {
+      label: "Duplicate",
+      icon: Copy,
+      onClick: () => handleDuplicateTask(task.id, columnId),
+    },
+    {
+      label: "Delete",
+      icon: Trash2,
+      onClick: () => onOpen("deleteTask", columnId, task),
+      className: "text-red-600 focus:text-red-600",
+    },
+  ];
+
   return (
     <div
       ref={setNodeRef}
@@ -77,40 +90,7 @@ const TaskCard = ({ task, columnId }: TaskCardProps) => {
       <div className="flex items-start justify-between">
         <h3 className="font-medium">{task.title}</h3>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 hover:cursor-pointer"
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={() => onOpen("editTask", columnId, task)}
-              className="cursor-pointer"
-            >
-              <Pencil className="mr-2 h-4 w-4" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => handleDuplicateTask(task.id, columnId)}
-              className="cursor-pointer"
-            >
-              <Copy className="mr-2 h-4 w-4" />
-              Duplicate
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => onOpen("deleteTask", columnId, task)}
-              className="cursor-pointer text-red-600 focus:text-red-600"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <KanbanDropdownMenu items={DROPDOWN_MENU_ITEMS} />
       </div>
       <p className="text-sm text-muted-foreground line-clamp-2">
         {task.description}
