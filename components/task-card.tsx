@@ -2,9 +2,11 @@
 
 import { Task } from "@/lib/schema";
 import { ColumnType, useTaskModal } from "@/hooks/useTaskModal";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { useKanbanStore } from "@/hooks/useKanbanStore";
+import { Copy, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -21,6 +23,8 @@ interface TaskCardProps {
 
 const TaskCard = ({ task, columnId }: TaskCardProps) => {
   const { onOpen } = useTaskModal();
+
+  const duplicateTask = useKanbanStore((state) => state.duplicateTask);
 
   const priorityColors = {
     low: "bg-blue-100 text-blue-800 hover:bg-blue-100/80",
@@ -50,6 +54,17 @@ const TaskCard = ({ task, columnId }: TaskCardProps) => {
     zIndex: isDragging ? 10 : 1,
   };
 
+  const handleDuplicateTask = (taskId: string, columnId: string) => {
+    try {
+      duplicateTask(taskId, columnId);
+
+      toast.success("Task duplicated successfully");
+    } catch (error) {
+      console.log("Error duplicating task:", error);
+      toast.error("Failed to duplicate task");
+    }
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -57,14 +72,18 @@ const TaskCard = ({ task, columnId }: TaskCardProps) => {
       {...attributes}
       {...listeners}
       aria-describedby="DndDescribedBy-0"
-      className="w-full space-y-2 border bg-white p-4 rounded-lg cursor-pointer shadow-sm hover:shadow-md transition-all duration-200"
+      className="w-full space-y-2 border bg-background p-4 rounded-lg cursor-pointer shadow-sm hover:bg-background/50 hover:shadow-md transition-all duration-200"
     >
       <div className="flex items-start justify-between">
         <h3 className="font-medium">{task.title}</h3>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-6 w-6">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 hover:cursor-pointer"
+            >
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -75,6 +94,13 @@ const TaskCard = ({ task, columnId }: TaskCardProps) => {
             >
               <Pencil className="mr-2 h-4 w-4" />
               Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleDuplicateTask(task.id, columnId)}
+              className="cursor-pointer"
+            >
+              <Copy className="mr-2 h-4 w-4" />
+              Duplicate
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => onOpen("deleteTask", columnId, task)}
