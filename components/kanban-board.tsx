@@ -213,11 +213,11 @@ const KanbanBoard = () => {
             {columns.map((column) => (
               <KanbanColumn key={column.id} column={column} />
             ))}
-            <div className="flex-shrink-0 w-[400px] min-h-[345px] h-full border-2 border-dashed border-gray-200 rounded-lg flex items-center justify-center">
+            <div className="flex-shrink-0 w-[400px] min-h-[345px] h-full border-2 border-dashed border-muted-foreground/50 rounded-lg flex items-center justify-center">
               <Button
                 variant="ghost"
                 onClick={() => onColumnModalOpen("createColumn")}
-                className="text-gray-500 gap-1.5"
+                className="text-gray-500 gap-1.5 hover:cursor-pointer"
               >
                 <Plus className="h-4 w-4" />
                 Add Column
@@ -233,7 +233,7 @@ const KanbanBoard = () => {
               columnId={activeColumn?.id as ColumnType}
             />
           ) : activeColumn ? (
-            <div className="w-[400px] h-full bg-gray-100 space-y-4 p-4 rounded-lg opacity-80">
+            <div className="w-[400px] h-full bg-accent dark:bg-accent/40 space-y-4 p-4 rounded-lg opacity-80">
               <div className="flex items-center justify-between">
                 <div className="text-lg font-medium">
                   {activeColumn.title}{" "}
