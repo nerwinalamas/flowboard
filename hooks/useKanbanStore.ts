@@ -25,6 +25,10 @@ interface KanbanState {
   addColumn: (column: Column) => void;
   editColumn: (columnId: string, updatedColumn: Partial<Column>) => void;
   deleteColumn: (columnId: string) => void;
+  duplicateColumn: (columnId: string) => void;
+  duplicateTask: (taskId: string, columnId: string) => void;
+  columnSortDirections: Record<string, "high-to-low" | "low-to-high">;
+  togglePrioritySort: (columnId: string) => void;
 }
 
 // Initial columns data
@@ -89,6 +93,7 @@ export const useKanbanStore = create<KanbanState>((set) => ({
   columns: initialColumns,
   activeTask: null,
   activeColumn: null,
+  columnSortDirections: {},
 
   setActiveTask: (task) => set({ activeTask: task }),
 
@@ -227,5 +232,100 @@ export const useKanbanStore = create<KanbanState>((set) => ({
     set((state) => ({
       columns: state.columns.filter((column) => column.id !== columnId),
     }));
+  },
+
+  duplicateColumn: (columnId) => {
+    set((state) => {
+      // Find the column to duplicate
+      const columnToDuplicate = state.columns.find(
+        (col) => col.id === columnId
+      );
+      if (!columnToDuplicate) return state;
+
+      // Create a deep copy of the column
+      const duplicatedColumn: Column = {
+        ...columnToDuplicate,
+        id: `${columnToDuplicate.id}-copy-${Date.now()}`, // Generate a unique ID
+        title: `${columnToDuplicate.title} (Copy)`,
+        tasks: columnToDuplicate.tasks.map((task) => ({
+          ...task,
+          id: `${task.id}-copy-${Date.now()}`, // Generate unique IDs for tasks
+        })),
+      };
+
+      // Insert the duplicated column right after the original
+      const originalIndex = state.columns.findIndex(
+        (col) => col.id === columnId
+      );
+      const newColumns = [...state.columns];
+      newColumns.splice(originalIndex + 1, 0, duplicatedColumn);
+
+      return { columns: newColumns };
+    });
+  },
+
+  duplicateTask: (taskId, columnId) => {
+    set((state) => {
+      // Find the column
+      const column = state.columns.find((col) => col.id === columnId);
+      if (!column) return state;
+
+      // Find the task to duplicate
+      const taskToDuplicate = column.tasks.find((t) => t.id === taskId);
+      if (!taskToDuplicate) return state;
+
+      const duplicatedTask: Task = {
+        ...taskToDuplicate,
+        id: `task-copy-${Date.now()}`,
+        title: `${taskToDuplicate.title} (Copy)`,
+      };
+
+      const updatedColumns = state.columns.map((col) => {
+        if (col.id === columnId) {
+          return {
+            ...col,
+            tasks: [...col.tasks, duplicatedTask],
+          };
+        }
+        return col;
+      });
+
+      return { columns: updatedColumns };
+    });
+  },
+
+  togglePrioritySort: (columnId) => {
+    set((state) => {
+      const currentDirection =
+        state.columnSortDirections[columnId] || "high-to-low";
+      const newDirection =
+        currentDirection === "high-to-low" ? "low-to-high" : "high-to-low";
+
+      const priorityOrder = {
+        "high-to-low": { high: 1, medium: 2, low: 3 },
+        "low-to-high": { low: 1, medium: 2, high: 3 },
+      };
+
+      const updatedColumns = state.columns.map((column) => {
+        if (column.id === columnId) {
+          const sortedTasks = [...column.tasks].sort((a, b) => {
+            return (
+              priorityOrder[newDirection][a.priority] -
+              priorityOrder[newDirection][b.priority]
+            );
+          });
+          return { ...column, tasks: sortedTasks };
+        }
+        return column;
+      });
+
+      return {
+        columns: updatedColumns,
+        columnSortDirections: {
+          ...state.columnSortDirections,
+          [columnId]: newDirection,
+        },
+      };
+    });
   },
 }));
