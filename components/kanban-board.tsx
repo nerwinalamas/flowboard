@@ -22,6 +22,8 @@ import {
 } from "@dnd-kit/sortable";
 import KanbanColumn from "./kanban-column";
 import TaskCard from "./task-card";
+import KanbanAddButtons from "./kanban-add-buttons";
+import KanbanFilter from "./kanban-filter";
 import { Button } from "@/components/ui/button";
 
 const KanbanBoard = () => {
@@ -197,7 +199,11 @@ const KanbanBoard = () => {
   };
 
   return (
-    <div className="h-full min-w-max p-4">
+    <div className="h-full min-w-max p-4 space-y-8">
+      <div className="flex items-center justify-between">
+        <KanbanFilter />
+        <KanbanAddButtons />
+      </div>
       <DndContext
         collisionDetection={closestCenter}
         onDragStart={handleOnDragStart}
