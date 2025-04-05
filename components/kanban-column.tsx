@@ -28,6 +28,8 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
   const togglePrioritySort = useKanbanStore(
     (state) => state.togglePrioritySort
   );
+  const getFilteredTasks = useKanbanStore((state) => state.getFilteredTasks);
+  const filteredTasks = getFilteredTasks(column.id);
 
   const {
     attributes,
@@ -52,6 +54,10 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
 
   const { setNodeRef: setTasksRef } = useDroppable({
     id: `column-${column.id}`,
+    data: {
+      accepts: ['task'],
+      filteredTasks: filteredTasks.map(task => task.id)
+    }
   });
 
   const handleDuplicateColumn = (columnId: string) => {
@@ -122,15 +128,15 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
         className="space-y-3 min-h-[270px] h-full p-2 rounded-md border border-dashed border-muted-foreground/50 transition-colors duration-200 hover:border-muted-foreground"
       >
         <SortableContext
-          items={column.tasks.map((task) => task.id)}
+          items={filteredTasks.map((task) => task.id)}
           strategy={verticalListSortingStrategy}
         >
-          {column.tasks.length === 0 ? (
+          {filteredTasks.length === 0 ? (
             <div className="flex h-24 items-center justify-center">
               <p className="text-sm text-muted-foreground">No tasks yet</p>
             </div>
           ) : (
-            column.tasks.map((task) => (
+            filteredTasks.map((task) => (
               <TaskCard
                 key={task.id}
                 task={task}
