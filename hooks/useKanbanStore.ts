@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { Column, Task } from "@/lib/schema";
 
+export type Priority = "all" | "high" | "medium" | "low";
+
 interface KanbanState {
   columns: Column[];
   activeTask: Task | null;
@@ -29,6 +31,11 @@ interface KanbanState {
   duplicateTask: (taskId: string, columnId: string) => void;
   columnSortDirections: Record<string, "high-to-low" | "low-to-high">;
   togglePrioritySort: (columnId: string) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  priorityFilter: Priority;
+  setPriorityFilter: (priority: Priority) => void;
+  getFilteredTasks: (columnId: string) => Task[];
 }
 
 // Initial columns data
@@ -89,11 +96,13 @@ const initialColumns: Column[] = [
   },
 ];
 
-export const useKanbanStore = create<KanbanState>((set) => ({
+export const useKanbanStore = create<KanbanState>((set, get) => ({
   columns: initialColumns,
   activeTask: null,
   activeColumn: null,
   columnSortDirections: {},
+  searchQuery: "",
+  priorityFilter: "all",
 
   setActiveTask: (task) => set({ activeTask: task }),
 
@@ -326,6 +335,31 @@ export const useKanbanStore = create<KanbanState>((set) => ({
           [columnId]: newDirection,
         },
       };
+    });
+  },
+
+  setSearchQuery: (query) => set({ searchQuery: query.toLowerCase() }),
+
+  setPriorityFilter: (priority) => set({ priorityFilter: priority }),
+
+  getFilteredTasks: (columnId) => {
+    const state = get();
+    const column = state.columns.find((col) => col.id === columnId);
+    if (!column) return [];
+
+    return column.tasks.filter((task) => {
+      // Apply search filter
+      const matchesSearch =
+        !state.searchQuery ||
+        task.title.toLowerCase().includes(state.searchQuery) ||
+        task.description.toLowerCase().includes(state.searchQuery);
+
+      // Apply priority filter
+      const matchesPriority =
+        state.priorityFilter === "all" ||
+        task.priority === state.priorityFilter;
+
+      return matchesSearch && matchesPriority;
     });
   },
 }));
