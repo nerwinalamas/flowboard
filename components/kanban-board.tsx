@@ -22,8 +22,6 @@ import {
 } from "@dnd-kit/sortable";
 import KanbanColumn from "./kanban-column";
 import TaskCard from "./task-card";
-import KanbanAddButtons from "./kanban-add-buttons";
-import KanbanFilter from "./kanban-filter";
 import { Button } from "@/components/ui/button";
 
 const KanbanBoard = () => {
@@ -42,7 +40,12 @@ const KanbanBoard = () => {
     setActiveColumn,
     setColumns,
     moveTask,
+    showArchived,
   } = useKanbanStore();
+
+  const visibleColumns = showArchived
+    ? columns
+    : columns.filter((column) => !column.isArchived);
 
   const handleOnDragStart = (event: DragStartEvent) => {
     const { active } = event;
@@ -200,10 +203,6 @@ const KanbanBoard = () => {
 
   return (
     <div className="h-full min-w-max p-4 space-y-8">
-      <div className="flex items-center justify-between">
-        <KanbanFilter />
-        <KanbanAddButtons />
-      </div>
       <DndContext
         collisionDetection={closestCenter}
         onDragStart={handleOnDragStart}
@@ -213,10 +212,10 @@ const KanbanBoard = () => {
       >
         <div className="flex gap-4 pb-4">
           <SortableContext
-            items={columns.map((col) => `column-${col.id}`)}
+            items={visibleColumns.map((col) => `column-${col.id}`)}
             strategy={horizontalListSortingStrategy}
           >
-            {columns.map((column) => (
+            {visibleColumns.map((column) => (
               <KanbanColumn key={column.id} column={column} />
             ))}
             <div className="flex-shrink-0 w-[400px] min-h-[405px] h-full border-2 border-dashed border-muted-foreground/50 rounded-lg flex items-center justify-center">
