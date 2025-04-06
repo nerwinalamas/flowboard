@@ -4,7 +4,7 @@ import { Column } from "@/lib/schema";
 import { ColumnType, useTaskModal } from "@/hooks/useTaskModal";
 import { useColumnModal } from "@/hooks/useColumnModal";
 import { useKanbanStore } from "@/hooks/useKanbanStore";
-import { ArrowDownUp, Copy, Pencil, Plus, Trash2 } from "lucide-react";
+import { Archive, ArrowDownUp, Copy, Pencil, Plus, Trash2 } from "lucide-react";
 import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -23,13 +23,15 @@ interface KanbanColumnProps {
 const KanbanColumn = ({ column }: KanbanColumnProps) => {
   const { onOpen: onTaskModalOpen } = useTaskModal();
   const { onOpen: onColumnModalOpen } = useColumnModal();
+  const {
+    duplicateColumn,
+    togglePrioritySort,
+    archiveColumn,
+    getFilteredTasks,
+  } = useKanbanStore();
 
-  const duplicateColumn = useKanbanStore((state) => state.duplicateColumn);
-  const togglePrioritySort = useKanbanStore(
-    (state) => state.togglePrioritySort
-  );
-  const getFilteredTasks = useKanbanStore((state) => state.getFilteredTasks);
   const filteredTasks = getFilteredTasks(column.id);
+  const taskCount = filteredTasks.length;
 
   const {
     attributes,
@@ -71,6 +73,17 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
     }
   };
 
+  const handleArchiveColumn = (columnId: string) => {
+    try {
+      archiveColumn(columnId);
+
+      toast.success("Column archived successfully");
+    } catch (error) {
+      console.log("Error archiving column:", error);
+      toast.error("Failed to archive column");
+    }
+  };
+
   const DROPDOWN_MENU_ITEMS: DropdownMenuItem[] = [
     {
       label: "Add Task",
@@ -93,6 +106,11 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
       onClick: () => togglePrioritySort(column.id),
     },
     {
+      label: "Archive",
+      icon: Archive,
+      onClick: () => handleArchiveColumn(column.id),
+    },
+    {
       label: "Delete",
       icon: Trash2,
       onClick: () => onColumnModalOpen("deleteColumn", column),
@@ -108,13 +126,13 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
       {...listeners}
       suppressHydrationWarning={true}
       aria-disabled={false}
-      className="w-[400px] min-h-[405px] h-full bg-accent dark:bg-accent/40 space-y-4 p-4 rounded-lg shadow-sm backdrop-blur-sm"
+      className="w-[400px] min-h-[405px] h-full flex flex-col bg-accent dark:bg-accent/40 space-y-4 p-4 rounded-lg shadow-sm backdrop-blur-sm"
     >
       <div className="flex items-center justify-between">
         <div className="text-lg font-medium">
           {column.title}{" "}
           <span className="ml-2 text-muted-foreground text-sm">
-            ({column.tasks.length})
+            ({taskCount})
           </span>
         </div>
         <KanbanDropdownMenu
@@ -125,7 +143,7 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
 
       <div
         ref={setTasksRef}
-        className="space-y-3 min-h-[330px] h-full p-2 rounded-md border border-dashed border-muted-foreground/50 transition-colors duration-200 hover:border-muted-foreground"
+        className="space-y-3 flex-1 p-2 rounded-md border border-dashed border-muted-foreground/50 transition-colors duration-200 hover:border-muted-foreground"
       >
         <SortableContext
           items={filteredTasks.map((task) => task.id)}
