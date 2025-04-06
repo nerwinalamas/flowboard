@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+export const userSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
+
 export const taskSchema = z.object({
   title: z
     .string()
@@ -10,6 +15,8 @@ export const taskSchema = z.object({
     .min(1, "Description is required")
     .max(250, "Description must be at most 250 characters"),
   priority: z.enum(["low", "medium", "high"]),
+  assigneeId: z.string().optional(),
+  dueDate: z.date().optional(),
 });
 
 export const taskWithIdSchema = taskSchema.extend({
@@ -32,6 +39,7 @@ export const columnSchema = z.object({
   tasks: z.array(taskWithIdSchema),
 });
 
+export type User = z.infer<typeof userSchema>;
 export type TaskFormData = z.infer<typeof taskSchema>;
 export type Task = z.infer<typeof taskWithIdSchema>;
 export type DeleteTaskFormData = z.infer<typeof deleteTaskSchema>;
