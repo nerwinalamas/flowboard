@@ -17,6 +17,8 @@ export const taskSchema = z.object({
   priority: z.enum(["low", "medium", "high"]),
   assigneeId: z.string().optional(),
   dueDate: z.date().optional(),
+  isArchived: z.boolean().optional().default(false),
+  archivedAt: z.date().optional(),
 });
 
 export const taskWithIdSchema = taskSchema.extend({
@@ -37,6 +39,8 @@ export const columnSchema = z.object({
     .min(1, "Column name is required")
     .max(20, "Column name must be at most 20 characters"),
   tasks: z.array(taskWithIdSchema),
+  isArchived: z.boolean().optional().default(false),
+  archivedAt: z.date().optional(),
 });
 
 export type User = z.infer<typeof userSchema>;
