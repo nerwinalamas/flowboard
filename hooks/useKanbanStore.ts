@@ -1,7 +1,7 @@
 import { create } from "zustand";
-import { Column, Task } from "@/lib/schema";
+import { Column, Task, User } from "@/lib/schema";
 
-export type Priority = "all" | "high" | "medium" | "low";
+export type Priority = "high" | "medium" | "low";
 
 interface KanbanState {
   columns: Column[];
@@ -33,10 +33,34 @@ interface KanbanState {
   togglePrioritySort: (columnId: string) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  priorityFilter: Priority;
-  setPriorityFilter: (priority: Priority) => void;
+  priorityFilter: Priority[];
+  setPriorityFilter: (priorities: Priority[]) => void;
+  assigneeFilter: string[];
+  setAssigneeFilter: (assignees: string[]) => void;
   getFilteredTasks: (columnId: string) => Task[];
+  showUnassigned: boolean;
+  setShowUnassigned: (show: boolean) => void;
+  toggleUnassigned: () => void;
 }
+
+export const sampleUsers: User[] = [
+  {
+    id: "1",
+    name: "John Doe",
+  },
+  {
+    id: "2",
+    name: "Jane Smith",
+  },
+  {
+    id: "3",
+    name: "Robert Johnson",
+  },
+  {
+    id: "4",
+    name: "Emily Davis",
+  },
+];
 
 // Initial columns data
 const initialColumns: Column[] = [
@@ -49,12 +73,16 @@ const initialColumns: Column[] = [
         title: "Research competitors",
         description: "Look into what our competitors are doing",
         priority: "medium",
+        assigneeId: undefined,
+        dueDate: new Date("2025-04-30"),
       },
       {
         id: "2",
         title: "Design new landing page",
         description: "Create wireframes for the new landing page",
         priority: "high",
+        assigneeId: undefined,
+        dueDate: new Date("2025-04-30"),
       },
     ],
   },
@@ -67,12 +95,16 @@ const initialColumns: Column[] = [
         title: "Implement authentication",
         description: "Add login and registration functionality",
         priority: "high",
+        assigneeId: "1",
+        dueDate: new Date("2025-04-20"),
       },
       {
         id: "4",
         title: "Write documentation",
         description: "Document the API endpoints",
         priority: "low",
+        assigneeId: "3",
+        dueDate: new Date("2025-04-15"),
       },
     ],
   },
@@ -85,12 +117,16 @@ const initialColumns: Column[] = [
         title: "Setup project repository",
         description: "Initialize Git repo and configure CI/CD",
         priority: "medium",
+        assigneeId: "1",
+        dueDate: new Date("2025-04-05"),
       },
       {
         id: "6",
         title: "Create database schema",
         description: "Design and implement the initial database schema",
         priority: "high",
+        assigneeId: "2",
+        dueDate: new Date("2025-04-10"),
       },
     ],
   },
@@ -102,7 +138,9 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
   activeColumn: null,
   columnSortDirections: {},
   searchQuery: "",
-  priorityFilter: "all",
+  priorityFilter: [],
+  assigneeFilter: [],
+  showUnassigned: false,
 
   setActiveTask: (task) => set({ activeTask: task }),
 
@@ -342,6 +380,13 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
 
   setPriorityFilter: (priority) => set({ priorityFilter: priority }),
 
+  setAssigneeFilter: (assignees) => set({ assigneeFilter: assignees }),
+
+  setShowUnassigned: (show) => set({ showUnassigned: show }),
+
+  toggleUnassigned: () =>
+    set((state) => ({ showUnassigned: !state.showUnassigned })),
+
   getFilteredTasks: (columnId) => {
     const state = get();
     const column = state.columns.find((col) => col.id === columnId);
@@ -356,10 +401,19 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
 
       // Apply priority filter
       const matchesPriority =
-        state.priorityFilter === "all" ||
-        task.priority === state.priorityFilter;
+        state.priorityFilter.length === 0 ||
+        state.priorityFilter.includes(task.priority);
 
-      return matchesSearch && matchesPriority;
+      // Apply assignee filter
+      const matchesAssignee =
+      // If no assignee filters are set, show all tasks
+      (state.assigneeFilter.length === 0 && !state.showUnassigned) ||
+      // Show unassigned tasks if the option is checked
+      (state.showUnassigned && !task.assigneeId) ||
+      // Show tasks that match the selected assignees
+      (state.assigneeFilter.length > 0 && task.assigneeId && state.assigneeFilter.includes(task.assigneeId));
+
+      return matchesSearch && matchesPriority && matchesAssignee;
     });
   },
 }));
