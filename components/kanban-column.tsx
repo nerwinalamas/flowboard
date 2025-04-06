@@ -55,9 +55,9 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
   const { setNodeRef: setTasksRef } = useDroppable({
     id: `column-${column.id}`,
     data: {
-      accepts: ['task'],
-      filteredTasks: filteredTasks.map(task => task.id)
-    }
+      accepts: ["task"],
+      filteredTasks: filteredTasks.map((task) => task.id),
+    },
   });
 
   const handleDuplicateColumn = (columnId: string) => {
@@ -108,7 +108,7 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
       {...listeners}
       suppressHydrationWarning={true}
       aria-disabled={false}
-      className="w-[400px] min-h-[345px] h-full bg-accent dark:bg-accent/40 space-y-4 p-4 rounded-lg shadow-sm backdrop-blur-sm"
+      className="w-[400px] min-h-[405px] h-full bg-accent dark:bg-accent/40 space-y-4 p-4 rounded-lg shadow-sm backdrop-blur-sm"
     >
       <div className="flex items-center justify-between">
         <div className="text-lg font-medium">
@@ -125,7 +125,7 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
 
       <div
         ref={setTasksRef}
-        className="space-y-3 min-h-[270px] h-full p-2 rounded-md border border-dashed border-muted-foreground/50 transition-colors duration-200 hover:border-muted-foreground"
+        className="space-y-3 min-h-[330px] h-full p-2 rounded-md border border-dashed border-muted-foreground/50 transition-colors duration-200 hover:border-muted-foreground"
       >
         <SortableContext
           items={filteredTasks.map((task) => task.id)}
@@ -133,7 +133,7 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
         >
           {filteredTasks.length === 0 ? (
             <div className="flex h-24 items-center justify-center">
-              <p className="text-sm text-muted-foreground">No tasks yet</p>
+              <p className="text-sm text-muted-foreground">No tasks found.</p>
             </div>
           ) : (
             filteredTasks.map((task) => (
