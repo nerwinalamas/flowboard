@@ -89,6 +89,8 @@ const EditTask = () => {
         priority: data.priority,
         assigneeId: data.assigneeId,
         dueDate: data.dueDate,
+        isArchived: false,
+        archivedAt: undefined,
       };
 
       editTask(taskUpdatedData.id, columnId, taskUpdatedData);

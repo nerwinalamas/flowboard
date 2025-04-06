@@ -75,6 +75,8 @@ const CreateTask = () => {
         priority: data.priority,
         assigneeId: data.assigneeId,
         dueDate: data.dueDate,
+        isArchived: false,
+        archivedAt: undefined,
       };
 
       addTask(columnId, taskData);
