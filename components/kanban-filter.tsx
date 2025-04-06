@@ -1,3 +1,5 @@
+"use client";
+
 import { getInitials } from "@/lib/utils";
 import { Priority, sampleUsers, useKanbanStore } from "@/hooks/useKanbanStore";
 import { Filter, Search } from "lucide-react";
@@ -66,7 +68,7 @@ const KanbanFilter = () => {
     showUnassigned;
 
   return (
-    <div className="flex gap-2">
+    <div className="p-4 flex gap-2">
       <div className="relative">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
         <Input
