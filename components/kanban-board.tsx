@@ -219,7 +219,7 @@ const KanbanBoard = () => {
             {columns.map((column) => (
               <KanbanColumn key={column.id} column={column} />
             ))}
-            <div className="flex-shrink-0 w-[400px] min-h-[345px] h-full border-2 border-dashed border-muted-foreground/50 rounded-lg flex items-center justify-center">
+            <div className="flex-shrink-0 w-[400px] min-h-[405px] h-full border-2 border-dashed border-muted-foreground/50 rounded-lg flex items-center justify-center">
               <Button
                 variant="ghost"
                 onClick={() => onColumnModalOpen("createColumn")}
@@ -239,35 +239,7 @@ const KanbanBoard = () => {
               columnId={activeColumn?.id as ColumnType}
             />
           ) : activeColumn ? (
-            <div className="w-[400px] h-full bg-accent dark:bg-accent/40 space-y-4 p-4 rounded-lg opacity-80">
-              <div className="flex items-center justify-between">
-                <div className="text-lg font-medium">
-                  {activeColumn.title}{" "}
-                  <span className="ml-2 text-muted-foreground text-sm">
-                    ({activeColumn.tasks.length})
-                  </span>
-                </div>
-              </div>
-              <div className="space-y-3 min-h-[200px] p-2 rounded-md border border-dashed border-gray-300">
-                {activeColumn.tasks.length === 0 ? (
-                  <div className="flex h-24 items-center justify-center">
-                    <p className="text-sm text-muted-foreground">
-                      No tasks yet
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {activeColumn.tasks.map((task) => (
-                      <TaskCard
-                        key={task.id}
-                        task={task}
-                        columnId={activeColumn.id as ColumnType}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+            <KanbanColumn column={activeColumn} />
           ) : null}
         </DragOverlay>
       </DndContext>
