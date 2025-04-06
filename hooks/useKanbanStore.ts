@@ -41,6 +41,25 @@ interface KanbanState {
   showUnassigned: boolean;
   setShowUnassigned: (show: boolean) => void;
   toggleUnassigned: () => void;
+  archiveTask: (taskId: string, columnId: string) => void;
+  // unarchiveTask: (taskId: string, columnId: string) => void;
+  archiveColumn: (columnId: string) => void;
+  // unarchiveColumn: (columnId: string) => void;
+  // getArchivedTasks: () => Task[];
+  // getArchivedColumns: () => Column[];
+  showArchived: boolean;
+  // setShowArchived: (show: boolean) => void;
+  toggleShowArchived: () => void;
+  viewOptions: {
+    showDescription: boolean;
+    showPriority: boolean;
+    showDueDates: boolean;
+    showAssignees: boolean;
+  };
+  setViewOption: <K extends keyof KanbanState['viewOptions']>(
+    option: K,
+    value: KanbanState['viewOptions'][K]
+  ) => void;
 }
 
 export const sampleUsers: User[] = [
@@ -67,6 +86,8 @@ const initialColumns: Column[] = [
   {
     id: "todo",
     title: "Todo",
+    isArchived: false,
+    archivedAt: undefined,
     tasks: [
       {
         id: "1",
@@ -75,6 +96,8 @@ const initialColumns: Column[] = [
         priority: "medium",
         assigneeId: undefined,
         dueDate: new Date("2025-04-30"),
+        isArchived: false,
+        archivedAt: undefined,
       },
       {
         id: "2",
@@ -83,12 +106,16 @@ const initialColumns: Column[] = [
         priority: "high",
         assigneeId: undefined,
         dueDate: new Date("2025-04-30"),
+        isArchived: false,
+        archivedAt: undefined,
       },
     ],
   },
   {
     id: "in-progress",
     title: "In Progress",
+    isArchived: false,
+    archivedAt: undefined,
     tasks: [
       {
         id: "3",
@@ -97,6 +124,8 @@ const initialColumns: Column[] = [
         priority: "high",
         assigneeId: "1",
         dueDate: new Date("2025-04-20"),
+        isArchived: false,
+        archivedAt: undefined,
       },
       {
         id: "4",
@@ -105,12 +134,16 @@ const initialColumns: Column[] = [
         priority: "low",
         assigneeId: "3",
         dueDate: new Date("2025-04-15"),
+        isArchived: false,
+        archivedAt: undefined,
       },
     ],
   },
   {
     id: "done",
     title: "Done",
+    isArchived: false,
+    archivedAt: undefined,
     tasks: [
       {
         id: "5",
@@ -119,6 +152,8 @@ const initialColumns: Column[] = [
         priority: "medium",
         assigneeId: "1",
         dueDate: new Date("2025-04-05"),
+        isArchived: false,
+        archivedAt: undefined,
       },
       {
         id: "6",
@@ -127,6 +162,8 @@ const initialColumns: Column[] = [
         priority: "high",
         assigneeId: "2",
         dueDate: new Date("2025-04-10"),
+        isArchived: false,
+        archivedAt: undefined,
       },
     ],
   },
@@ -141,6 +178,13 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
   priorityFilter: [],
   assigneeFilter: [],
   showUnassigned: false,
+  showArchived: false,
+  viewOptions: {
+    showDescription: true,
+    showPriority: true,
+    showDueDates: true,
+    showAssignees: true,
+  },
 
   setActiveTask: (task) => set({ activeTask: task }),
 
@@ -390,9 +434,14 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
   getFilteredTasks: (columnId) => {
     const state = get();
     const column = state.columns.find((col) => col.id === columnId);
-    if (!column) return [];
+
+    // Return empty array if column doesn't exist or is archived
+    if (!column || column.isArchived) return [];
 
     return column.tasks.filter((task) => {
+      // Skip archived tasks unless explicitly enabled
+      if (task.isArchived && !state.showArchived) return false;
+
       // Apply search filter
       const matchesSearch =
         !state.searchQuery ||
@@ -406,14 +455,121 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
 
       // Apply assignee filter
       const matchesAssignee =
-      // If no assignee filters are set, show all tasks
-      (state.assigneeFilter.length === 0 && !state.showUnassigned) ||
-      // Show unassigned tasks if the option is checked
-      (state.showUnassigned && !task.assigneeId) ||
-      // Show tasks that match the selected assignees
-      (state.assigneeFilter.length > 0 && task.assigneeId && state.assigneeFilter.includes(task.assigneeId));
+        // If no assignee filters are set, show all tasks
+        (state.assigneeFilter.length === 0 && !state.showUnassigned) ||
+        // Show unassigned tasks if the option is checked
+        (state.showUnassigned && !task.assigneeId) ||
+        // Show tasks that match the selected assignees
+        (state.assigneeFilter.length > 0 &&
+          task.assigneeId &&
+          state.assigneeFilter.includes(task.assigneeId));
 
       return matchesSearch && matchesPriority && matchesAssignee;
     });
   },
+
+  archiveTask: (taskId, columnId) => {
+    set((state) => ({
+      columns: state.columns.map((column) => {
+        if (column.id === columnId) {
+          return {
+            ...column,
+            tasks: column.tasks.map((task) =>
+              task.id === taskId
+                ? {
+                    ...task,
+                    isArchived: true,
+                    archivedAt: new Date(),
+                  }
+                : task
+            ),
+          };
+        }
+        return column;
+      }),
+    }));
+  },
+
+  // unarchiveTask: (taskId, columnId) => {
+  //   set((state) => ({
+  //     columns: state.columns.map((column) => {
+  //       if (column.id === columnId) {
+  //         return {
+  //           ...column,
+  //           tasks: column.tasks.map((task) => 
+  //             task.id === taskId
+  //               ? { 
+  //                   ...task, 
+  //                   isArchived: false, 
+  //                   archivedAt: undefined 
+  //                 }
+  //               : task
+  //           )
+  //         };
+  //       }
+  //       return column;
+  //     })
+  //   }));
+  // },
+
+  archiveColumn: (columnId) => {
+    set((state) => ({
+      columns: state.columns.map((column) =>
+        column.id === columnId
+          ? {
+              ...column,
+              isArchived: true,
+              archivedAt: new Date(),
+              tasks: column.tasks.map((task) => ({
+                ...task,
+                isArchived: true,
+                archivedAt: new Date(),
+              })),
+            }
+          : column
+      ),
+    }));
+  },
+
+  // unarchiveColumn: (columnId) => {
+  //   set((state) => ({
+  //     columns: state.columns.map((column) => 
+  //       column.id === columnId
+  //         ? { 
+  //             ...column, 
+  //             isArchived: false, 
+  //             archivedAt: undefined,
+  //             // Optionally unarchive all tasks in this column
+  //             tasks: column.tasks.map(task => ({
+  //               ...task,
+  //               isArchived: false,
+  //               archivedAt: undefined
+  //             }))
+  //           }
+  //         : column
+  //     )
+  //   }));
+  // },
+
+  // getArchivedTasks: () => {
+  //   return get().columns.flatMap(column => 
+  //     column.tasks.filter(task => task.isArchived)
+  //   );
+  // },
+
+  // getArchivedColumns: () => {
+  //   return get().columns.filter(column => column.isArchived);
+  // },
+
+  // setShowArchived: (show) => set({ showArchived: show }),
+  
+  toggleShowArchived: () => set((state) => ({ showArchived: !state.showArchived })),
+
+  setViewOption: (option, value) => 
+    set(state => ({
+      viewOptions: {
+        ...state.viewOptions,
+        [option]: value
+      }
+    })),
 }));
