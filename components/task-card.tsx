@@ -4,7 +4,7 @@ import { Task } from "@/lib/schema";
 import { getInitials } from "@/lib/utils";
 import { ColumnType, useTaskModal } from "@/hooks/useTaskModal";
 import { sampleUsers, useKanbanStore } from "@/hooks/useKanbanStore";
-import { Clock, Copy, Pencil, Trash2, User } from "lucide-react";
+import { Archive, Clock, Copy, Pencil, Trash2, User } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { toast } from "sonner";
@@ -21,6 +21,8 @@ const TaskCard = ({ task, columnId }: TaskCardProps) => {
   const { onOpen } = useTaskModal();
 
   const duplicateTask = useKanbanStore((state) => state.duplicateTask);
+  const archiveTask = useKanbanStore((state) => state.archiveTask);
+  const viewOptions = useKanbanStore((state) => state.viewOptions);
 
   const assignedUser = task.assigneeId
     ? sampleUsers.find((user) => user.id === task.assigneeId)
@@ -68,6 +70,17 @@ const TaskCard = ({ task, columnId }: TaskCardProps) => {
     }
   };
 
+  const handleArchiveTask = (taskId: string, columnId: string) => {
+    try {
+      archiveTask(taskId, columnId);
+
+      toast.success("Task archived successfully");
+    } catch (error) {
+      console.log("Error archiving task:", error);
+      toast.error("Failed to archive task");
+    }
+  };
+
   const DROPDOWN_MENU_ITEMS: DropdownMenuItem[] = [
     {
       label: "Edit",
@@ -78,6 +91,11 @@ const TaskCard = ({ task, columnId }: TaskCardProps) => {
       label: "Duplicate",
       icon: Copy,
       onClick: () => handleDuplicateTask(task.id, columnId),
+    },
+    {
+      label: "Archive",
+      icon: Archive,
+      onClick: () => handleArchiveTask(task.id, columnId),
     },
     {
       label: "Delete",
@@ -101,37 +119,47 @@ const TaskCard = ({ task, columnId }: TaskCardProps) => {
 
         <KanbanDropdownMenu items={DROPDOWN_MENU_ITEMS} />
       </div>
-      <p className="text-sm text-muted-foreground line-clamp-2">
-        {task.description}
-      </p>
-      <Badge
-        className={priorityColors[task.priority as keyof typeof priorityColors]}
-      >
-        {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
-      </Badge>
 
-      {(assignedUser || task.dueDate) && (
-        <div className="flex justify-between items-center text-xs mt-1 text-gray-500">
-          <div className="flex items-center">
-            {assignedUser ? (
-              <>
-                <Avatar className="h-5 w-5 mr-1">
-                  <AvatarFallback className="text-[10px]">
-                    {getInitials(assignedUser.name)}
-                  </AvatarFallback>
-                </Avatar>
-                {assignedUser.name}
-              </>
-            ) : (
-              <>
-                <User className="h-3 w-3 mr-1" />
-                <span>Unassigned</span>
-              </>
-            )}
-          </div>
+      {viewOptions.showDescription && (
+        <p className="text-sm text-muted-foreground line-clamp-2">
+          {task.description}
+        </p>
+      )}
 
-          {task.dueDate && (
+      {viewOptions.showPriority && (
+        <Badge
+          className={
+            priorityColors[task.priority as keyof typeof priorityColors]
+          }
+        >
+          {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+        </Badge>
+      )}
+
+      {(viewOptions.showAssignees || viewOptions.showDueDates) && (
+        <div className="grid grid-cols-2 text-xs mt-1 text-gray-500">
+          {viewOptions.showAssignees && (
             <div className="flex items-center">
+              {assignedUser ? (
+                <>
+                  <Avatar className="h-5 w-5 mr-1">
+                    <AvatarFallback className="text-[10px]">
+                      {getInitials(assignedUser.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  {assignedUser.name}
+                </>
+              ) : (
+                <>
+                  <User className="h-3 w-3 mr-1" />
+                  <span>Unassigned</span>
+                </>
+              )}
+            </div>
+          )}
+
+          {viewOptions.showDueDates && task.dueDate && (
+            <div className="flex items-center justify-end col-start-2">
               <Clock className="h-3 w-3 mr-1" />
               {formattedDueDate}
             </div>
