@@ -1,14 +1,16 @@
 "use client";
 
 import { Task } from "@/lib/schema";
+import { getInitials } from "@/lib/utils";
 import { ColumnType, useTaskModal } from "@/hooks/useTaskModal";
-import { useKanbanStore } from "@/hooks/useKanbanStore";
-import { Copy, Pencil, Trash2 } from "lucide-react";
+import { sampleUsers, useKanbanStore } from "@/hooks/useKanbanStore";
+import { Clock, Copy, Pencil, Trash2, User } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import KanbanDropdownMenu, { DropdownMenuItem } from "./kanban-dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface TaskCardProps {
   task: Task;
@@ -19,6 +21,13 @@ const TaskCard = ({ task, columnId }: TaskCardProps) => {
   const { onOpen } = useTaskModal();
 
   const duplicateTask = useKanbanStore((state) => state.duplicateTask);
+
+  const assignedUser = task.assigneeId
+    ? sampleUsers.find((user) => user.id === task.assigneeId)
+    : null;
+  const formattedDueDate = task.dueDate
+    ? new Date(task.dueDate).toLocaleDateString()
+    : null;
 
   const priorityColors = {
     low: "bg-blue-100 text-blue-800 hover:bg-blue-100/80",
@@ -100,6 +109,35 @@ const TaskCard = ({ task, columnId }: TaskCardProps) => {
       >
         {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
       </Badge>
+
+      {(assignedUser || task.dueDate) && (
+        <div className="flex justify-between items-center text-xs mt-1 text-gray-500">
+          <div className="flex items-center">
+            {assignedUser ? (
+              <>
+                <Avatar className="h-5 w-5 mr-1">
+                  <AvatarFallback className="text-[10px]">
+                    {getInitials(assignedUser.name)}
+                  </AvatarFallback>
+                </Avatar>
+                {assignedUser.name}
+              </>
+            ) : (
+              <>
+                <User className="h-3 w-3 mr-1" />
+                <span>Unassigned</span>
+              </>
+            )}
+          </div>
+
+          {task.dueDate && (
+            <div className="flex items-center">
+              <Clock className="h-3 w-3 mr-1" />
+              {formattedDueDate}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
