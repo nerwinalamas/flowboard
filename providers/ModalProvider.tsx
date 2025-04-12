@@ -6,6 +6,7 @@ import DeleteColumn from "@/components/modals/delete-column";
 import DeleteTask from "@/components/modals/delete-task";
 import EditColumn from "@/components/modals/edit-column";
 import EditTask from "@/components/modals/edit-task";
+import ShareTask from "@/components/modals/share-task";
 
 const ModalProvider = () => {
   return (
@@ -13,6 +14,7 @@ const ModalProvider = () => {
       <CreateTask />
       <EditTask />
       <DeleteTask />
+      <ShareTask />
       <CreateColumn />
       <EditColumn />
       <DeleteColumn />
