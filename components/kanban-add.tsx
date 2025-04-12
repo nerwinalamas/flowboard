@@ -30,6 +30,9 @@ const KanbanAdd = () => {
         <DropdownMenuItem onClick={() => onTaskModalOpen("createTask", "todo")}>
           Task
         </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => console.log("Add User")}>
+          User
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
