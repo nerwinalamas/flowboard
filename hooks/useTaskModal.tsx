@@ -3,16 +3,14 @@
 import { Task } from "@/lib/schema";
 import { create } from "zustand";
 
-export type ModalType = "createTask" | "editTask" | "deleteTask";
-
-export type ColumnType = "todo" | "in-progress" | "done";
+export type ModalType = "createTask" | "editTask" | "deleteTask" | "shareTask";
 
 type ModalStore = {
   type: ModalType | null;
   data?: string | Task;
   isOpen: boolean;
-  columnId: ColumnType;
-  onOpen: (type: ModalType, columnId: ColumnType, data?: string | Task) => void;
+  columnId: string;
+  onOpen: (type: ModalType, columnId: string, data?: string | Task) => void;
   onClose: () => void;
 };
 
