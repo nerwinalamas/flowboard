@@ -42,9 +42,9 @@ interface KanbanState {
   setShowUnassigned: (show: boolean) => void;
   toggleUnassigned: () => void;
   archiveTask: (taskId: string, columnId: string) => void;
-  // unarchiveTask: (taskId: string, columnId: string) => void;
+  unarchiveTask: (taskId: string, columnId: string) => void;
   archiveColumn: (columnId: string) => void;
-  // unarchiveColumn: (columnId: string) => void;
+  unarchiveColumn: (columnId: string) => void;
   // getArchivedTasks: () => Task[];
   // getArchivedColumns: () => Column[];
   showArchived: boolean;
@@ -490,27 +490,27 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
     }));
   },
 
-  // unarchiveTask: (taskId, columnId) => {
-  //   set((state) => ({
-  //     columns: state.columns.map((column) => {
-  //       if (column.id === columnId) {
-  //         return {
-  //           ...column,
-  //           tasks: column.tasks.map((task) => 
-  //             task.id === taskId
-  //               ? { 
-  //                   ...task, 
-  //                   isArchived: false, 
-  //                   archivedAt: undefined 
-  //                 }
-  //               : task
-  //           )
-  //         };
-  //       }
-  //       return column;
-  //     })
-  //   }));
-  // },
+  unarchiveTask: (taskId, columnId) => {
+    set((state) => ({
+      columns: state.columns.map((column) => {
+        if (column.id === columnId) {
+          return {
+            ...column,
+            tasks: column.tasks.map((task) => 
+              task.id === taskId
+                ? { 
+                    ...task, 
+                    isArchived: false, 
+                    archivedAt: undefined 
+                  }
+                : task
+            )
+          };
+        }
+        return column;
+      })
+    }));
+  },
 
   archiveColumn: (columnId) => {
     set((state) => ({
@@ -531,25 +531,24 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
     }));
   },
 
-  // unarchiveColumn: (columnId) => {
-  //   set((state) => ({
-  //     columns: state.columns.map((column) => 
-  //       column.id === columnId
-  //         ? { 
-  //             ...column, 
-  //             isArchived: false, 
-  //             archivedAt: undefined,
-  //             // Optionally unarchive all tasks in this column
-  //             tasks: column.tasks.map(task => ({
-  //               ...task,
-  //               isArchived: false,
-  //               archivedAt: undefined
-  //             }))
-  //           }
-  //         : column
-  //     )
-  //   }));
-  // },
+  unarchiveColumn: (columnId) => {
+    set((state) => ({
+      columns: state.columns.map((column) => 
+        column.id === columnId
+          ? { 
+              ...column, 
+              isArchived: false, 
+              archivedAt: undefined,
+              tasks: column.tasks.map(task => ({
+                ...task,
+                isArchived: false,
+                archivedAt: undefined
+              }))
+            }
+          : column
+      )
+    }));
+  },
 
   // getArchivedTasks: () => {
   //   return get().columns.flatMap(column => 
