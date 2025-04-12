@@ -1,6 +1,5 @@
 "use client";
 
-import { ColumnType } from "@/hooks/useTaskModal";
 import { useColumnModal } from "@/hooks/useColumnModal";
 import { useKanbanStore } from "@/hooks/useKanbanStore";
 import { Plus } from "lucide-react";
@@ -216,7 +215,11 @@ const KanbanBoard = () => {
             strategy={horizontalListSortingStrategy}
           >
             {visibleColumns.map((column) => (
-              <KanbanColumn key={column.id} column={column} />
+              <KanbanColumn
+                key={column.id}
+                column={column}
+                showArchived={showArchived}
+              />
             ))}
             <div className="flex-shrink-0 w-[400px] min-h-[405px] h-full border-2 border-dashed border-muted-foreground/50 rounded-lg flex items-center justify-center">
               <Button
@@ -233,10 +236,7 @@ const KanbanBoard = () => {
 
         <DragOverlay>
           {activeTask ? (
-            <TaskCard
-              task={activeTask}
-              columnId={activeColumn?.id as ColumnType}
-            />
+            <TaskCard task={activeTask} columnId={activeColumn?.id as string} />
           ) : activeColumn ? (
             <KanbanColumn column={activeColumn} />
           ) : null}
