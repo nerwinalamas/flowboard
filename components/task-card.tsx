@@ -2,9 +2,18 @@
 
 import { Task } from "@/lib/schema";
 import { getInitials } from "@/lib/utils";
-import { ColumnType, useTaskModal } from "@/hooks/useTaskModal";
+import { useTaskModal } from "@/hooks/useTaskModal";
 import { sampleUsers, useKanbanStore } from "@/hooks/useKanbanStore";
-import { Archive, Clock, Copy, Pencil, Trash2, User } from "lucide-react";
+import {
+  Archive,
+  ArchiveX,
+  Clock,
+  Copy,
+  Pencil,
+  Share2,
+  Trash2,
+  User,
+} from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { toast } from "sonner";
@@ -14,15 +23,17 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface TaskCardProps {
   task: Task;
-  columnId: ColumnType;
+  columnId: string;
+  showArchived?: boolean;
 }
 
-const TaskCard = ({ task, columnId }: TaskCardProps) => {
+const TaskCard = ({ task, columnId, showArchived }: TaskCardProps) => {
   const { onOpen } = useTaskModal();
 
   const duplicateTask = useKanbanStore((state) => state.duplicateTask);
   const archiveTask = useKanbanStore((state) => state.archiveTask);
   const viewOptions = useKanbanStore((state) => state.viewOptions);
+  const unarchiveTask = useKanbanStore((state) => state.unarchiveTask);
 
   const assignedUser = task.assigneeId
     ? sampleUsers.find((user) => user.id === task.assigneeId)
@@ -81,29 +92,59 @@ const TaskCard = ({ task, columnId }: TaskCardProps) => {
     }
   };
 
-  const DROPDOWN_MENU_ITEMS: DropdownMenuItem[] = [
-    {
-      label: "Edit",
-      icon: Pencil,
-      onClick: () => onOpen("editTask", columnId, task),
-    },
-    {
-      label: "Duplicate",
-      icon: Copy,
-      onClick: () => handleDuplicateTask(task.id, columnId),
-    },
-    {
-      label: "Archive",
-      icon: Archive,
-      onClick: () => handleArchiveTask(task.id, columnId),
-    },
-    {
-      label: "Delete",
-      icon: Trash2,
-      onClick: () => onOpen("deleteTask", columnId, task),
-      className: "text-red-600 focus:text-red-600",
-    },
-  ];
+  const handleUnarchiveTask = (taskId: string, columnId: string) => {
+    try {
+      unarchiveTask(taskId, columnId);
+
+      toast.success("Task archived successfully");
+    } catch (error) {
+      console.log("Error archiving task:", error);
+      toast.error("Failed to archive task");
+    }
+  };
+
+  const DROPDOWN_MENU_ITEMS: DropdownMenuItem[] = task.isArchived
+    ? [
+        {
+          label: "Unarchive",
+          icon: ArchiveX,
+          onClick: () => handleUnarchiveTask(task.id, columnId),
+        },
+        {
+          label: "Delete",
+          icon: Trash2,
+          onClick: () => onOpen("deleteTask", columnId, task),
+          className: "text-red-600 focus:text-red-600",
+        },
+      ]
+    : [
+        {
+          label: "Edit",
+          icon: Pencil,
+          onClick: () => onOpen("editTask", columnId, task),
+        },
+        {
+          label: "Duplicate",
+          icon: Copy,
+          onClick: () => handleDuplicateTask(task.id, columnId),
+        },
+        {
+          label: "Share",
+          icon: Share2,
+          onClick: () => onOpen("shareTask", columnId, task),
+        },
+        {
+          label: "Archive",
+          icon: Archive,
+          onClick: () => handleArchiveTask(task.id, columnId),
+        },
+        {
+          label: "Delete",
+          icon: Trash2,
+          onClick: () => onOpen("deleteTask", columnId, task),
+          className: "text-red-600 focus:text-red-600",
+        },
+      ];
 
   return (
     <div
@@ -115,8 +156,15 @@ const TaskCard = ({ task, columnId }: TaskCardProps) => {
       className="w-full space-y-2 border bg-background p-4 rounded-lg cursor-pointer shadow-sm hover:bg-background/50 hover:shadow-md transition-all duration-200"
     >
       <div className="flex items-start justify-between">
-        <h3 className="font-medium">{task.title}</h3>
-
+        <div>
+          {task.isArchived && showArchived && (
+            <div className="flex items-center text-xs text-muted-foreground mb-1">
+              <Archive className="h-3 w-3 mr-1" />
+              <span>Archived</span>
+            </div>
+          )}
+          <h3 className="font-medium">{task.title}</h3>
+        </div>
         <KanbanDropdownMenu items={DROPDOWN_MENU_ITEMS} />
       </div>
 
