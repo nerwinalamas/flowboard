@@ -1,10 +1,18 @@
 "use client";
 
 import { Column } from "@/lib/schema";
-import { ColumnType, useTaskModal } from "@/hooks/useTaskModal";
+import { useTaskModal } from "@/hooks/useTaskModal";
 import { useColumnModal } from "@/hooks/useColumnModal";
 import { useKanbanStore } from "@/hooks/useKanbanStore";
-import { Archive, ArrowDownUp, Copy, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  Archive,
+  ArchiveX,
+  ArrowDownUp,
+  Copy,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -18,9 +26,10 @@ import KanbanDropdownMenu, { DropdownMenuItem } from "./kanban-dropdown-menu";
 
 interface KanbanColumnProps {
   column: Column;
+  showArchived?: boolean;
 }
 
-const KanbanColumn = ({ column }: KanbanColumnProps) => {
+const KanbanColumn = ({ column, showArchived }: KanbanColumnProps) => {
   const { onOpen: onTaskModalOpen } = useTaskModal();
   const { onOpen: onColumnModalOpen } = useColumnModal();
   const {
@@ -28,9 +37,13 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
     togglePrioritySort,
     archiveColumn,
     getFilteredTasks,
+    unarchiveColumn,
   } = useKanbanStore();
 
-  const filteredTasks = getFilteredTasks(column.id);
+  // const filteredTasks = getFilteredTasks(column.id);
+  const filteredTasks = getFilteredTasks(column.id).filter(
+    (task) => showArchived || !task.isArchived
+  );
   const taskCount = filteredTasks.length;
 
   const {
@@ -84,39 +97,64 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
     }
   };
 
-  const DROPDOWN_MENU_ITEMS: DropdownMenuItem[] = [
-    {
-      label: "Add Task",
-      icon: Plus,
-      onClick: () => onTaskModalOpen("createTask", column.id as ColumnType),
-    },
-    {
-      label: "Edit",
-      icon: Pencil,
-      onClick: () => onColumnModalOpen("editColumn", column),
-    },
-    {
-      label: "Duplicate",
-      icon: Copy,
-      onClick: () => handleDuplicateColumn(column.id),
-    },
-    {
-      label: "Sort",
-      icon: ArrowDownUp,
-      onClick: () => togglePrioritySort(column.id),
-    },
-    {
-      label: "Archive",
-      icon: Archive,
-      onClick: () => handleArchiveColumn(column.id),
-    },
-    {
-      label: "Delete",
-      icon: Trash2,
-      onClick: () => onColumnModalOpen("deleteColumn", column),
-      className: "text-red-600 focus:text-red-600",
-    },
-  ];
+  const handleUnarchiveColumn = (columnId: string) => {
+    try {
+      unarchiveColumn(columnId);
+
+      toast.success("Column archived successfully");
+    } catch (error) {
+      console.log("Error archiving column:", error);
+      toast.error("Failed to archive column");
+    }
+  };
+
+  const DROPDOWN_MENU_ITEMS: DropdownMenuItem[] = column.isArchived
+    ? [
+        {
+          label: "Unarchive",
+          icon: ArchiveX,
+          onClick: () => handleUnarchiveColumn(column.id),
+        },
+        {
+          label: "Delete",
+          icon: Trash2,
+          onClick: () => onColumnModalOpen("deleteColumn", column),
+          className: "text-red-600 focus:text-red-600",
+        },
+      ]
+    : [
+        {
+          label: "Add Task",
+          icon: Plus,
+          onClick: () => onTaskModalOpen("createTask", column.id),
+        },
+        {
+          label: "Edit",
+          icon: Pencil,
+          onClick: () => onColumnModalOpen("editColumn", column),
+        },
+        {
+          label: "Duplicate",
+          icon: Copy,
+          onClick: () => handleDuplicateColumn(column.id),
+        },
+        {
+          label: "Sort",
+          icon: ArrowDownUp,
+          onClick: () => togglePrioritySort(column.id),
+        },
+        {
+          label: "Archive",
+          icon: Archive,
+          onClick: () => handleArchiveColumn(column.id),
+        },
+        {
+          label: "Delete",
+          icon: Trash2,
+          onClick: () => onColumnModalOpen("deleteColumn", column),
+          className: "text-red-600 focus:text-red-600",
+        },
+      ];
 
   return (
     <div
@@ -128,12 +166,20 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
       aria-disabled={false}
       className="w-[400px] min-h-[405px] h-full flex flex-col bg-accent dark:bg-accent/40 space-y-4 p-4 rounded-lg shadow-sm backdrop-blur-sm"
     >
-      <div className="flex items-center justify-between">
-        <div className="text-lg font-medium">
-          {column.title}{" "}
-          <span className="ml-2 text-muted-foreground text-sm">
-            ({taskCount})
-          </span>
+      <div className="flex items-start justify-between">
+        <div>
+          {column.isArchived && showArchived && (
+            <div className="flex items-center text-xs text-muted-foreground mb-1">
+              <Archive className="h-3 w-3 mr-1" />
+              <span>Archived</span>
+            </div>
+          )}
+          <div className="text-lg font-medium">
+            {column.title}{" "}
+            <span className="ml-2 text-muted-foreground text-sm">
+              ({taskCount})
+            </span>
+          </div>
         </div>
         <KanbanDropdownMenu
           items={DROPDOWN_MENU_ITEMS}
@@ -158,7 +204,8 @@ const KanbanColumn = ({ column }: KanbanColumnProps) => {
               <TaskCard
                 key={task.id}
                 task={task}
-                columnId={column.id as ColumnType}
+                columnId={column.id}
+                showArchived={showArchived}
               />
             ))
           )}
