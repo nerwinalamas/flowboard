@@ -16,12 +16,8 @@ import { Switch } from "./ui/switch";
 import { Separator } from "./ui/separator";
 
 const KanbanSettings = () => {
-  const {
-    viewOptions,
-    setViewOption,
-    // showArchived,
-    // toggleShowArchived
-  } = useKanbanStore();
+  const { viewOptions, setViewOption, showArchived, toggleShowArchived } =
+    useKanbanStore();
 
   return (
     <Sheet>
@@ -48,6 +44,22 @@ const KanbanSettings = () => {
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label htmlFor="show-archived-tasks" className="text-sm">
+                  Show archived tasks and columns
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Display tasks and columns that have been archived
+                </p>
+              </div>
+              <Switch
+                id="show-archived"
+                checked={showArchived}
+                onCheckedChange={toggleShowArchived}
+              />
+            </div>
+
+            {/* <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="show-archived-tasks" className="text-sm">
                   Show archived tasks
                 </Label>
                 <p className="text-xs text-muted-foreground">
@@ -55,9 +67,9 @@ const KanbanSettings = () => {
                 </p>
               </div>
               <Switch id="show-archived-tasks" />
-            </div>
+            </div> */}
 
-            <div className="flex items-center justify-between">
+            {/* <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label htmlFor="show-archived-columns" className="text-sm">
                   Show archived columns
@@ -67,7 +79,7 @@ const KanbanSettings = () => {
                 </p>
               </div>
               <Switch id="show-archived-columns" />
-            </div>
+            </div> */}
           </div>
 
           <Separator className="my-6" />
