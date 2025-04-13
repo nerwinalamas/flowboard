@@ -4,7 +4,8 @@ import { useEffect } from "react";
 import { taskSchema, TaskFormData, Task } from "@/lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTaskModal } from "@/hooks/useTaskModal";
-import { sampleUsers, useKanbanStore } from "@/hooks/useKanbanStore";
+import { useKanbanStore } from "@/hooks/useKanbanStore";
+import { useUserStore } from "@/hooks/useUserStore";
 import { useForm } from "react-hook-form";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
@@ -51,6 +52,7 @@ const EditTask = () => {
   const taskData = data as Task | undefined;
 
   const editTask = useKanbanStore((state) => state.editTask);
+  const users = useUserStore((state) => state.users);
 
   const form = useForm<TaskFormData>({
     resolver: zodResolver(taskSchema),
@@ -173,7 +175,7 @@ const EditTask = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {sampleUsers.map((user) => (
+                        {users.map((user) => (
                           <SelectItem key={user.id} value={user.id}>
                             {user.name}
                           </SelectItem>

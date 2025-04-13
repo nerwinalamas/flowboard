@@ -1,7 +1,8 @@
 "use client";
 
 import { useTaskModal } from "@/hooks/useTaskModal";
-import { sampleUsers, useKanbanStore } from "@/hooks/useKanbanStore";
+import { useKanbanStore } from "@/hooks/useKanbanStore";
+import { useUserStore } from "@/hooks/useUserStore";
 import { Task, TaskFormData, taskSchema } from "@/lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -49,6 +50,7 @@ const CreateTask = () => {
   const isModalOpen = isOpen && type === "createTask";
 
   const addTask = useKanbanStore((state) => state.addTask);
+  const users = useUserStore((state) => state.users);
 
   const form = useForm<TaskFormData>({
     resolver: zodResolver(taskSchema),
@@ -159,7 +161,7 @@ const CreateTask = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {sampleUsers.map((user) => (
+                        {users.map((user) => (
                           <SelectItem key={user.id} value={user.id}>
                             {user.name}
                           </SelectItem>

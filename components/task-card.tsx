@@ -3,7 +3,8 @@
 import { Task } from "@/lib/schema";
 import { getInitials } from "@/lib/utils";
 import { useTaskModal } from "@/hooks/useTaskModal";
-import { sampleUsers, useKanbanStore } from "@/hooks/useKanbanStore";
+import { useKanbanStore } from "@/hooks/useKanbanStore";
+import { useUserStore } from "@/hooks/useUserStore";
 import {
   Archive,
   ArchiveX,
@@ -34,9 +35,10 @@ const TaskCard = ({ task, columnId, showArchived }: TaskCardProps) => {
   const archiveTask = useKanbanStore((state) => state.archiveTask);
   const viewOptions = useKanbanStore((state) => state.viewOptions);
   const unarchiveTask = useKanbanStore((state) => state.unarchiveTask);
+  const users = useUserStore((state) => state.users);
 
   const assignedUser = task.assigneeId
-    ? sampleUsers.find((user) => user.id === task.assigneeId)
+    ? users.find((user) => user.id === task.assigneeId)
     : null;
   const formattedDueDate = task.dueDate
     ? new Date(task.dueDate).toLocaleDateString()
