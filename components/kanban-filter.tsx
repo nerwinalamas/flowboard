@@ -1,7 +1,8 @@
 "use client";
 
 import { getInitials } from "@/lib/utils";
-import { Priority, sampleUsers, useKanbanStore } from "@/hooks/useKanbanStore";
+import { Priority, useKanbanStore } from "@/hooks/useKanbanStore";
+import { useUserStore } from "@/hooks/useUserStore";
 import { Filter, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import TeamAvatars from "./team-avatars";
 
 const PRIORITY_DROPDOWN_MENU: Priority[] = ["high", "medium", "low"];
 
@@ -37,6 +39,7 @@ const KanbanFilter = () => {
     setShowUnassigned,
     toggleUnassigned,
   } = useKanbanStore();
+  const { users } = useUserStore();
 
   const handlePriorityChange = (priority: Priority) => {
     setPriorityFilter(
@@ -110,7 +113,7 @@ const KanbanFilter = () => {
               </CommandGroup>
               <CommandSeparator />
               <CommandGroup heading="Assignees">
-                {sampleUsers.map((user) => (
+                {users.map((user) => (
                   <CommandItem
                     key={user.id}
                     onSelect={() => handleAssigneeChange(user.id)}
@@ -163,6 +166,7 @@ const KanbanFilter = () => {
           </div>
         </PopoverContent>
       </Popover>
+      <TeamAvatars />
     </div>
   );
 };
