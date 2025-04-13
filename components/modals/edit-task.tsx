@@ -176,7 +176,11 @@ const EditTask = () => {
                       </FormControl>
                       <SelectContent>
                         {users.map((user) => (
-                          <SelectItem key={user.id} value={user.id}>
+                          <SelectItem
+                            key={user.id}
+                            value={user.id}
+                            className="capitalize"
+                          >
                             {user.name}
                           </SelectItem>
                         ))}

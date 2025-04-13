@@ -197,7 +197,7 @@ const TaskCard = ({ task, columnId, showArchived }: TaskCardProps) => {
                       {getInitials(assignedUser.name)}
                     </AvatarFallback>
                   </Avatar>
-                  {assignedUser.name}
+                  <span className="capitalize">{assignedUser.name}</span>
                 </>
               ) : (
                 <>

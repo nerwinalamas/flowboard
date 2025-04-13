@@ -129,7 +129,7 @@ const KanbanFilter = () => {
                             {getInitials(user.name)}
                           </AvatarFallback>
                         </Avatar>
-                        <span>{user.name}</span>
+                        <span className="capitalize">{user.name}</span>
                       </div>
                     </div>
                   </CommandItem>
