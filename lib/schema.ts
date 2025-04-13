@@ -2,7 +2,10 @@ import { z } from "zod";
 
 export const userSchema = z.object({
   id: z.string(),
-  name: z.string(),
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(30, "Name must be at most 30 characters"),
 });
 
 export const taskSchema = z.object({
