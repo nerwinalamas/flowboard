@@ -2,6 +2,7 @@
 
 import { useTaskModal } from "@/hooks/useTaskModal";
 import { useColumnModal } from "@/hooks/useColumnModal";
+import { useUserModal } from "@/hooks/useUserModal";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import {
 const KanbanAdd = () => {
   const { onOpen: onTaskModalOpen } = useTaskModal();
   const { onOpen: onColumnModalOpen } = useColumnModal();
+  const { onOpen: onUserModalOpen } = useUserModal();
 
   return (
     <DropdownMenu>
@@ -30,7 +32,7 @@ const KanbanAdd = () => {
         <DropdownMenuItem onClick={() => onTaskModalOpen("createTask", "todo")}>
           Task
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => console.log("Add User")}>
+        <DropdownMenuItem onClick={() => onUserModalOpen("createUser")}>
           User
         </DropdownMenuItem>
       </DropdownMenuContent>
