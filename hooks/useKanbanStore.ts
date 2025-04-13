@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Column, Task, User } from "@/lib/schema";
+import { Column, Task } from "@/lib/schema";
 
 export type Priority = "high" | "medium" | "low";
 
@@ -56,30 +56,11 @@ interface KanbanState {
     showDueDates: boolean;
     showAssignees: boolean;
   };
-  setViewOption: <K extends keyof KanbanState['viewOptions']>(
+  setViewOption: <K extends keyof KanbanState["viewOptions"]>(
     option: K,
-    value: KanbanState['viewOptions'][K]
+    value: KanbanState["viewOptions"][K]
   ) => void;
 }
-
-export const sampleUsers: User[] = [
-  {
-    id: "1",
-    name: "John Doe",
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-  },
-  {
-    id: "3",
-    name: "Robert Johnson",
-  },
-  {
-    id: "4",
-    name: "Emily Davis",
-  },
-];
 
 // Initial columns data
 const initialColumns: Column[] = [
@@ -496,19 +477,19 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
         if (column.id === columnId) {
           return {
             ...column,
-            tasks: column.tasks.map((task) => 
+            tasks: column.tasks.map((task) =>
               task.id === taskId
-                ? { 
-                    ...task, 
-                    isArchived: false, 
-                    archivedAt: undefined 
+                ? {
+                    ...task,
+                    isArchived: false,
+                    archivedAt: undefined,
                   }
                 : task
-            )
+            ),
           };
         }
         return column;
-      })
+      }),
     }));
   },
 
@@ -533,25 +514,25 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
 
   unarchiveColumn: (columnId) => {
     set((state) => ({
-      columns: state.columns.map((column) => 
+      columns: state.columns.map((column) =>
         column.id === columnId
-          ? { 
-              ...column, 
-              isArchived: false, 
+          ? {
+              ...column,
+              isArchived: false,
               archivedAt: undefined,
-              tasks: column.tasks.map(task => ({
+              tasks: column.tasks.map((task) => ({
                 ...task,
                 isArchived: false,
-                archivedAt: undefined
-              }))
+                archivedAt: undefined,
+              })),
             }
           : column
-      )
+      ),
     }));
   },
 
   // getArchivedTasks: () => {
-  //   return get().columns.flatMap(column => 
+  //   return get().columns.flatMap(column =>
   //     column.tasks.filter(task => task.isArchived)
   //   );
   // },
@@ -561,14 +542,15 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
   // },
 
   // setShowArchived: (show) => set({ showArchived: show }),
-  
-  toggleShowArchived: () => set((state) => ({ showArchived: !state.showArchived })),
 
-  setViewOption: (option, value) => 
-    set(state => ({
+  toggleShowArchived: () =>
+    set((state) => ({ showArchived: !state.showArchived })),
+
+  setViewOption: (option, value) =>
+    set((state) => ({
       viewOptions: {
         ...state.viewOptions,
-        [option]: value
-      }
+        [option]: value,
+      },
     })),
 }));
