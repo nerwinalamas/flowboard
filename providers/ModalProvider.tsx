@@ -8,6 +8,7 @@ import DeleteTask from "@/components/modals/delete-task";
 import EditColumn from "@/components/modals/edit-column";
 import EditTask from "@/components/modals/edit-task";
 import ShareTask from "@/components/modals/share-task";
+import TeamMembersDrawer from "@/components/team-members-drawer";
 
 const ModalProvider = () => {
   return (
@@ -20,6 +21,7 @@ const ModalProvider = () => {
       <EditColumn />
       <DeleteColumn />
       <CreateUser />
+      <TeamMembersDrawer />
     </>
   );
 };
