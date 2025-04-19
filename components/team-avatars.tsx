@@ -6,9 +6,10 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import TeamMembers from "./team-members";
+import { useUserDrawer } from "@/hooks/useUserDrawer";
 
 const TeamAvatars = ({ maxVisible = 3 }) => {
+  const { onOpen } = useUserDrawer();
   const users = useUserStore((state) => state.users);
 
   if (users.length === 0) {
@@ -24,7 +25,10 @@ const TeamAvatars = ({ maxVisible = 3 }) => {
         {visibleUsers.map((user) => (
           <HoverCard key={user.id}>
             <HoverCardTrigger>
-              <Avatar className="h-9 w-9 border-2 border-background hover:border-primary hover:cursor-pointer transition-colors duration-200 ease-in-out">
+              <Avatar
+                onClick={() => onOpen("viewMembers")}
+                className="h-9 w-9 border-2 border-background hover:border-primary hover:cursor-pointer transition-colors duration-200 ease-in-out"
+              >
                 <AvatarFallback className="text-sm bg-muted">
                   {getInitials(user.name)}
                 </AvatarFallback>
@@ -42,7 +46,16 @@ const TeamAvatars = ({ maxVisible = 3 }) => {
             </HoverCardContent>
           </HoverCard>
         ))}
-        {extraCount > 0 && <TeamMembers extraCount={extraCount} />}
+        {extraCount > 0 && (
+          <Avatar
+            onClick={() => onOpen("viewMembers")}
+            className="h-9 w-9 border-2 border-background hover:border-primary hover:cursor-pointer transition-colors duration-200 ease-in-out"
+          >
+            <AvatarFallback className="text-sm bg-muted">
+              +{extraCount}
+            </AvatarFallback>
+          </Avatar>
+        )}
       </div>
     </div>
   );
