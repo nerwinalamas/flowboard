@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { Column, Task } from "@/lib/schema";
+import { initialColumns } from "@/lib/data";
 
 export type Priority = "high" | "medium" | "low";
 
@@ -45,10 +46,7 @@ interface KanbanState {
   unarchiveTask: (taskId: string, columnId: string) => void;
   archiveColumn: (columnId: string) => void;
   unarchiveColumn: (columnId: string) => void;
-  // getArchivedTasks: () => Task[];
-  // getArchivedColumns: () => Column[];
   showArchived: boolean;
-  // setShowArchived: (show: boolean) => void;
   toggleShowArchived: () => void;
   viewOptions: {
     showDescription: boolean;
@@ -61,94 +59,6 @@ interface KanbanState {
     value: KanbanState["viewOptions"][K]
   ) => void;
 }
-
-// Initial columns data
-const initialColumns: Column[] = [
-  {
-    id: "todo",
-    title: "Todo",
-    isArchived: false,
-    archivedAt: undefined,
-    tasks: [
-      {
-        id: "1",
-        title: "Research competitors",
-        description: "Look into what our competitors are doing",
-        priority: "medium",
-        assigneeId: undefined,
-        dueDate: new Date("2025-04-30"),
-        isArchived: false,
-        archivedAt: undefined,
-      },
-      {
-        id: "2",
-        title: "Design new landing page",
-        description: "Create wireframes for the new landing page",
-        priority: "high",
-        assigneeId: undefined,
-        dueDate: new Date("2025-04-30"),
-        isArchived: false,
-        archivedAt: undefined,
-      },
-    ],
-  },
-  {
-    id: "in-progress",
-    title: "In Progress",
-    isArchived: false,
-    archivedAt: undefined,
-    tasks: [
-      {
-        id: "3",
-        title: "Implement authentication",
-        description: "Add login and registration functionality",
-        priority: "high",
-        assigneeId: "1",
-        dueDate: new Date("2025-04-20"),
-        isArchived: false,
-        archivedAt: undefined,
-      },
-      {
-        id: "4",
-        title: "Write documentation",
-        description: "Document the API endpoints",
-        priority: "low",
-        assigneeId: "3",
-        dueDate: new Date("2025-04-15"),
-        isArchived: false,
-        archivedAt: undefined,
-      },
-    ],
-  },
-  {
-    id: "done",
-    title: "Done",
-    isArchived: false,
-    archivedAt: undefined,
-    tasks: [
-      {
-        id: "5",
-        title: "Setup project repository",
-        description: "Initialize Git repo and configure CI/CD",
-        priority: "medium",
-        assigneeId: "1",
-        dueDate: new Date("2025-04-05"),
-        isArchived: false,
-        archivedAt: undefined,
-      },
-      {
-        id: "6",
-        title: "Create database schema",
-        description: "Design and implement the initial database schema",
-        priority: "high",
-        assigneeId: "2",
-        dueDate: new Date("2025-04-10"),
-        isArchived: false,
-        archivedAt: undefined,
-      },
-    ],
-  },
-];
 
 export const useKanbanStore = create<KanbanState>((set, get) => ({
   columns: initialColumns,
@@ -530,19 +440,7 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
       ),
     }));
   },
-
-  // getArchivedTasks: () => {
-  //   return get().columns.flatMap(column =>
-  //     column.tasks.filter(task => task.isArchived)
-  //   );
-  // },
-
-  // getArchivedColumns: () => {
-  //   return get().columns.filter(column => column.isArchived);
-  // },
-
-  // setShowArchived: (show) => set({ showArchived: show }),
-
+  
   toggleShowArchived: () =>
     set((state) => ({ showArchived: !state.showArchived })),
 
