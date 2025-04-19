@@ -23,7 +23,7 @@ const ShareTask = () => {
   const [copied, setCopied] = useState(false);
 
   if (isModalOpen && taskData) {
-    shareUrl = `http://localhost:3000/${taskData.id}`;
+    shareUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/${taskData.id}`;
   }
 
   const copyToClipboard = async () => {
