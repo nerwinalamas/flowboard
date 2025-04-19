@@ -326,8 +326,11 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
     const state = get();
     const column = state.columns.find((col) => col.id === columnId);
 
-    // Return empty array if column doesn't exist or is archived
-    if (!column || column.isArchived) return [];
+    // Return empty array if column doesn't exist
+    if (!column) return [];
+
+    // If column is archived but showArchived is false, return empty array
+    if (column.isArchived && !state.showArchived) return [];
 
     return column.tasks.filter((task) => {
       // Skip archived tasks unless explicitly enabled
@@ -440,7 +443,7 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
       ),
     }));
   },
-  
+
   toggleShowArchived: () =>
     set((state) => ({ showArchived: !state.showArchived })),
 
