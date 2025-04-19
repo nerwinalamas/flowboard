@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 
 const ShareTask = () => {
-  const { isOpen, onClose, type, columnId, data } = useTaskModal();
+  const { isOpen, onClose, type, data } = useTaskModal();
   const isModalOpen = isOpen && type === "shareTask";
   const taskData = data as Task | undefined;
   let shareUrl = "";
@@ -23,7 +23,7 @@ const ShareTask = () => {
   const [copied, setCopied] = useState(false);
 
   if (isModalOpen && taskData) {
-    shareUrl = `http://localhost:3000/${columnId}/${taskData.id}`;
+    shareUrl = `http://localhost:3000/${taskData.id}`;
   }
 
   const copyToClipboard = async () => {
