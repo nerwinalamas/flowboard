@@ -4,7 +4,7 @@ import KanbanNavbar from "@/components/kanban-navbar";
 
 const Home = () => {
   return (
-    <main className="w-full h-screen mx-auto py-6 px-4 flex flex-col">
+    <main className="w-full min-h-screen mx-auto py-6 px-4 flex flex-col">
       <KanbanNavbar />
       <KanbanFilter />
       <div className="flex-1 overflow-x-auto">
