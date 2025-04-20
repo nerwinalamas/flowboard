@@ -71,13 +71,13 @@ const KanbanFilter = () => {
     showUnassigned;
 
   return (
-    <div className="p-4 flex gap-2">
+    <div className="p-4 flex flex-col gap-2 md:flex-row">
       <div className="relative">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
         <Input
           type="search"
           placeholder="Search tasks..."
-          className="pl-8 w-80"
+          className="pl-8 w-full md:w-80"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
